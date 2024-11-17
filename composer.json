@@ -1,0 +1,29 @@
+{
+    "name": "concept-labs/dbal",
+    "description": "(C)oncept-Labs DBAL",
+    "keywords": ["php","dbal", "database abstract language"],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "mtr",
+            "email": "info.concept.labs@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "concept-labs/config": "^1",
+        "concept-labs/expression": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Concept\\DBAL\\": "src/"
+        }
+    },
+    "require-dev": {
+    },
+    "autoload-dev": {
+        "psr-4": {
+        }
+    }
+
+}
