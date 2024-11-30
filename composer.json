@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=7.4",
+        "concept-labs/exception": "^1",
         "concept-labs/config": "^1",
         "concept-labs/expression": "^1"
     },
@@ -24,6 +25,12 @@
     "autoload-dev": {
         "psr-4": {
         }
+    },
+    "extra": {
+        "concept": {
+            "include": "concept.json"
+        }
     }
+   
 
 }
