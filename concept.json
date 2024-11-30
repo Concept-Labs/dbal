@@ -1,0 +1,22 @@
+{
+    "di": {
+        "package": {
+            "concept-labs/dbal": {
+                "preference": {
+                    "Concept\\DBAL\\DML\\Expression\\SqlExpressionInterface": {
+                        "class": "Concept\\DBAL\\DML\\Expression\\SqlExpression"
+                    },
+                    "Concept\\DBAL\\DML\\Expression\\Dialect\\DialectAdapterInterface": {
+                        "class": "Concept\\DBAL\\DML\\Expression\\Dialect\\DialectAdapter"
+                    },
+                    "Concept\\DBAL\\DML\\DmlManagerInterface": {
+                        "class": "Concept\\DBAL\\DML\\DmlManager"
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\SelectBuilderInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\SelectBuilder"
+                    }
+                }
+            }
+        }
+    }
+}
