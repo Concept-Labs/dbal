@@ -185,6 +185,7 @@ abstract class SqlBuilder /*extends SqlExpression*/ implements SqlBuilderInterfa
      */
     protected function aggregateAliasableList(...$expressions): SqlExpressionInterface
     {
+        //@todo: decorate directly before return
         $list = $this->expression()->decorateJoin(Decorator::joiner(', '));
         
         foreach ($this->normalizeArguments(...$expressions) as $alias => $expression) {
