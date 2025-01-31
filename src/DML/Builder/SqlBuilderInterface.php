@@ -1,17 +1,32 @@
 <?php
 namespace Concept\DBAL\DML\Builder;
 
+use Concept\DBAL\DML\Builder\Contract\BindableInterface;
+use Concept\DBAL\DML\Builder\Contract\ConditionableInterface;
+use Concept\DBAL\DML\Builder\Contract\CTEableInterface;
+use Concept\DBAL\DML\Builder\Contract\LimitableInterface;
+use Concept\DBAL\DML\Builder\Contract\ShortcutableInterface;
+use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareInterface;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
-use Concept\Di\InjectableInterface;
+use Concept\DBC\Contract\ConnectionAwareInterface;
+use Concept\DBC\Result\ResultInterface;
+use Concept\Prototype\PrototypableInterface;
+use Concept\Prototype\ResetableInterface;
+use Stringable;
 
-interface SqlBuilderInterface extends InjectableInterface //\Stringable
+interface SqlBuilderInterface 
+  extends 
+    Stringable,
+    PrototypableInterface,
+    ResetableInterface,
+    SqlExpressionAwareInterface,
+    ConnectionAwareInterface,
+    LimitableInterface,
+    ConditionableInterface,
+    ShortcutableInterface,
+    CTEableInterface,
+    BindableInterface
 {
-    /**
-     * Get the query as a string
-     * 
-     * @return string
-     */
-   public function __toString(): string;
 
     /**
      * Get the query as an expression
@@ -23,79 +38,27 @@ interface SqlBuilderInterface extends InjectableInterface //\Stringable
    /**
      * Initialize the query builder
      * 
-     * @return self
+     * @return static
      */
-    public function reset(string $section = null): self;
+    public function reset(string $section = null): static;
 
     /**
-     * Add a keyword to the query
+     * Execute the query and return the result
      * 
-     * @param string $keyword The keyword to add
-     * 
-     * @return SqlExpressionInterface
+     * @return ResultInterface
      */
-    public function keyword(string $keyword): SqlExpressionInterface;
+    //public function query(): ResultInterface;
+    /**
+     * Execute the query and return the result
+     * 
+     * @return ResultInterface
+     */
+    public function execute(): ResultInterface;
 
     /**
-     * Add an identifier to the query
+     * Execute the query
      * 
-     * @param string $identifier The identifier to add
-     * 
-     * @return SqlExpressionInterface
+     * @return int|bool
      */
-    public function identifier(string $identifier): SqlExpressionInterface;
-
-    /**
-     * Add a WHERE to the query
-     * Pass the conditions as arguments
-     * Agruments can be strings, Stringables or QueryExpressionInterfaces
-     * ('condition', 'condition', ...)
-     * To set column or expression aliases, 
-     * pass an array with the column/expression as key and the alias as value:
-     * ('condition', ['alias' => 'condition'], ...)
-     * ('condition', 'condition', ['alias' => <QueryExpressionInterface>, ...]
-     * 
-     * 
-     * @param string|Stringable|QueryExpressionInterface ...$conditions The conditions to add
-     * 
-     * @return self
-     * 
-     * @throws \InvalidArgumentException If the conditions are empty
-     */
-    public function where(...$conditions): self;
-
-    /**
-     * Add a OR WHERE to the query
-     * Pass the conditions as arguments
-     * Agruments can be strings, Stringables or QueryExpressionInterfaces
-     * ('condition', 'condition', ...)
-     * To set column or expression aliases, 
-     * pass an array with the column/expression as key and the alias as value:
-     * ('condition', ['alias' => 'condition'], ...)
-     * ('condition', 'condition', ['alias' => <QueryExpressionInterface>, ...]
-     * 
-     * 
-     * @param string|Stringable|QueryExpressionInterface ...$conditions The conditions to add
-     * 
-     * @return self
-     * 
-     * @throws \InvalidArgumentException If the conditions are empty
-     */
-    public function orWhere(...$conditions): self;
-
-    
-
-   /**
-     * Add a LIMIT to the query
-     * 
-     * @param int $limit  The limit value
-     * @param int $offset The offset value
-     * 
-     * @return self
-     */
-
-     public function limit(int $limit, int $offset = null): self;
-
-
-
+    //public function exec(): int|bool;
 }

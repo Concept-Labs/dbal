@@ -3,19 +3,32 @@ namespace Concept\DBAL\DML\Expression;
 
 class KeywordEnum
     {
+        public const DESCRIBE = 'DESCRIBE';
+        public const EXPLAIN = 'EXPLAIN';
+        public const RAW = 'RAW';
+        public const LOCK = 'LOCK';
+        public const WITH = 'WITH';
         public const SELECT = 'SELECT';
         public const INSERT = 'INSERT';
+        public const REPLACE = 'REPLACE';
         public const IGNORE = 'IGNORE';
         public const DELAYED = 'DELAYED';
         public const COLUMNS = 'COLUMNS';
-        public const ON_DUPLICATE_KEY = 'ON DUPLICATE KEY UPDATE';
+        public const ON_DUPLICATE = 'ON DUPLICATE KEY UPDATE';
         public const UPDATE = 'UPDATE';
         public const DELETE = 'DELETE';
+        public const PARTITION_BY = 'PARTITION BY';
         public const FROM = 'FROM';
         public const WHERE = 'WHERE';
         public const SET = 'SET';
         public const VALUES = 'VALUES';
+        public const RETURNING = 'RETURNING';
         public const INTO = 'INTO';
+        public const CASE = 'CASE';
+        public const WHEN = 'WHEN';
+        public const THEN = 'THEN';
+        public const ELSE = 'ELSE';
+        public const END = 'END';
         public const AND = 'AND';
         public const OR = 'OR';
         public const NOT = 'NOT';
@@ -29,6 +42,9 @@ class KeywordEnum
         public const ANY = 'ANY';
         public const ASC = 'ASC';
         public const DESC = 'DESC';
+        public const NULLS_FIRST = 'NULLS FIRST';
+        public const NULLS_LAST = 'NULLS LAST';
+
         public const ORDER = 'ORDER';
         public const BY = 'BY';
         public const ORDER_BY = 'ORDER BY';
@@ -54,6 +70,8 @@ class KeywordEnum
         public const ON = 'ON';
         public const USING = 'USING';
         public const UNION = 'UNION';
+        public const UNION_ALL = 'UNION ALL';
+        public const WINDOW = 'WINDOW';
         public const INTERSECT = 'INTERSECT';
         public const EXCEPT = 'EXCEPT';
         public const DISTINCT = 'DISTINCT';
@@ -62,4 +80,8 @@ class KeywordEnum
         public const AVG = 'AVG';
         public const MIN = 'MIN';
         public const MAX = 'MAX';
+
+        public const FOR_UPDATE = 'FOR UPDATE';
+        public const LOCK_IN_SHARE_MODE = 'LOCK IN SHARE MODE';
+        public const COMMENT = 'COMMENT';
     }

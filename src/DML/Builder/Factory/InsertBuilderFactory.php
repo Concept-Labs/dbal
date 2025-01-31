@@ -4,7 +4,7 @@ namespace Concept\DBAL\DML\Builder\Factory;
 use Concept\Di\Factory\Service\ServiceFactory;
 use Concept\DBAL\DML\Builder\InsertBuilderInterface;
 
-class InsertBuilderFactory extends ServiceFactory
+class InsertBuilderFactory extends ServiceFactory implements InsertBuilderFactoryInterface
 {
 
     public function create(...$args): InsertBuilderInterface

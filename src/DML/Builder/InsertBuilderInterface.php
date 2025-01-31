@@ -2,29 +2,23 @@
 namespace Concept\DBAL\DML\Builder;
 
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Stringable;
 
 interface InsertBuilderInterface extends SqlBuilderInterface
 {
      /**
      * Initialize the query as an INSERT
      * 
-     * @return self
+     * @return static
      */
-    public function insert(): self;
+    public function insert(): static;
 
     /**
      * Use the IGNORE keyword
      * 
-     * @return self
+     * @return static
      */
-    public function ignore(): self;
-
-    /**
-     * Use the DELAYED keyword
-     * 
-     * @return self
-     */
-    public function delayed(): self;
+    public function ignore(): static;
 
     /**
      * Add a INTO to the query
@@ -32,43 +26,40 @@ interface InsertBuilderInterface extends SqlBuilderInterface
      * @param string $table The table to insert into
      * @param string|null $alias The table alias
      * 
-     * @return self
+     * @return static
      */
-    public function into(string $table): self;
+    public function into(string $table): static;
 
     /**
      * Add a COLUMNS to the query
      * 
-     * @param string ...$columns The columns to add
+     * @param string|Stringable|string[]|Stringable[] ...$columns The columns to add
      * 
-     * @return self
+     * @return static
      * 
-     * @throws \InvalidArgumentException If the columns are empty
+     * @throws InvalidArgumentException If the columns are empty
      */
-    public function columns(string ...$columns): self;
+    //public function columns(string|array|Stringable ...$columns): static;
 
     /**
      * Add a VALUES to the query
-     * Pass the values as arguments
-     * Agruments must be arrays with the values to add
-     * ([value, value, ...], [value, value, ...], ...)
      * 
-     * @param array|SqlExpressionInterface ...$values The values to add
+     * @param array $values The values to add
      * 
-     * @return self
+     * @return static
      * 
-     * @throws \InvalidArgumentException If the values are empty
+     * @throws InvalidArgumentException If the values are empty
      */
-    public function values(...$values): self;
+    public function values(array $values): static;
 
     /**
      * Add a SELECT to the query
      * 
      * @param SqlExpressionInterface $select The select query
      * 
-     * @return self
+     * @return static
      */
-    public function fromSelect(SqlExpressionInterface $select): self;
+    public function fromSelect(SqlExpressionInterface $select): static;
 
     /**
      * Add an ON DUPLICATE KEY UPDATE to the query
@@ -78,7 +69,16 @@ interface InsertBuilderInterface extends SqlBuilderInterface
      *           or as SqlExpressionInterface
      *           (['column' => 'value', 'column' => <SqlExpressionInterface>, ...])
      * 
-     * @return self
+     * @return static
      */
-    public function onDuplicateKey(?array $columns = null): self;
+    public function onDuplicateKey(array $columns): static;
+
+    /**
+     * Add a RETURNING to the query
+     * 
+     * @param string|Stringable ...$columns The columns to return
+     * 
+     * @return static
+     */
+    public function returning(string|Stringable ...$columns): static;
 }
