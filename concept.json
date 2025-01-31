@@ -6,14 +6,50 @@
                     "Concept\\DBAL\\DML\\Expression\\SqlExpressionInterface": {
                         "class": "Concept\\DBAL\\DML\\Expression\\SqlExpression"
                     },
+                    "Concept\\DBAL\\DML\\Expression\\SqlExpressionFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Expression\\SqlExpressionFactory",
+                        "singleton": true
+                    },
                     "Concept\\DBAL\\DML\\Expression\\Dialect\\DialectAdapterInterface": {
                         "class": "Concept\\DBAL\\DML\\Expression\\Dialect\\DialectAdapter"
                     },
                     "Concept\\DBAL\\DML\\DmlManagerInterface": {
                         "class": "Concept\\DBAL\\DML\\DmlManager"
                     },
+                    "Concept\\DBAL\\DML\\Builder\\Factory\\RawBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\Factory\\RawBuilderFactory",
+                        "singleton": true
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\RawBuilderInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\RawBuilder"
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\Factory\\SelectBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\Factory\\SelectBuilderFactory",
+                        "singleton": true
+                    },
                     "Concept\\DBAL\\DML\\Builder\\SelectBuilderInterface": {
                         "class": "Concept\\DBAL\\DML\\Builder\\SelectBuilder"
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\Factory\\InsertBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\Factory\\InsertBuilderFactory",
+                        "singleton": true
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\InsertBuilderInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\InsertBuilder"
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\Factory\\UpdateBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\Factory\\UpdateBuilderFactory",
+                        "singleton": true
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\UpdateBuilderInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\UpdateBuilder"
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\Factory\\DeleteBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\Factory\\DeleteBuilderFactory",
+                        "singleton": true
+                    },
+                    "Concept\\DBAL\\DML\\Builder\\DeleteBuilderInterface": {
+                        "class": "Concept\\DBAL\\DML\\Builder\\DeleteBuilder"
                     }
                 }
             }

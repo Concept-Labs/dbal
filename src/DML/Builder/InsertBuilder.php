@@ -3,20 +3,20 @@ namespace Concept\DBAL\DML\Builder;
 
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBAL\DML\Expression\KeywordEnum;
-use Concept\DBAL\DML\Decorator\Decorator;
+use Stringable;
+use Concept\DI\Factory\Attribute\Dependent;
 
+#[Dependent]
 class InsertBuilder extends SqlBuilder implements InsertBuilderInterface
 {
 
     /**
      * Initialize the query as an INSERT
      * 
-     * @return self
+     * @return static
      */
-    public function insert(?string $table = null): self
+    public function insert(?string $table = null): static
     {
-        $this->getSection(KeywordEnum::INSERT)->reset()->push(KeywordEnum::INSERT);
-        
         if ($table !== null) {
             $this->into($table);
         }
@@ -27,35 +27,24 @@ class InsertBuilder extends SqlBuilder implements InsertBuilderInterface
     /**
      * Use the IGNORE keyword
      * 
-     * @return self
+     * @return static
      */
-    public function ignore(): self
+    public function ignore(): static
     {
-        $this->getSection(KeywordEnum::IGNORE)->reset()->push(KeywordEnum::IGNORE);
+        $this->getSection(KeywordEnum::IGNORE)->reset()->push('');
 
         return $this;
     }
 
-    /**
-     * Use the DELAYED keyword
-     * 
-     * @return self
-     */
-    public function delayed(): self
-    {
-        $this->getSection(KeywordEnum::DELAYED)->reset()->push(KeywordEnum::DELAYED);
-
-        return $this;
-    }
 
     /**
      * Add a INTO to the query
      * 
      * @param string $table The table to insert into
      * 
-     * @return self
+     * @return static
      */
-    public function into(string $table): self
+    public function into(string $table): static
     {
         $this->getSection(KeywordEnum::INTO)
             ->reset()
@@ -69,18 +58,19 @@ class InsertBuilder extends SqlBuilder implements InsertBuilderInterface
     /**
      * Add a COLUMNS to the query
      * 
-     * @param string ...$columns The columns to add
+     * @param string|Stringable|string[]|Stringable[] ...$columns The columns to add
      * 
-     * @return self
+     * @return static
      * 
      * @throws \InvalidArgumentException If the columns are empty
      */
-    public function columns(string ...$columns): self
-    {
-        $this->getSection(KeywordEnum::COLUMNS)->push($this->aggregateAliasableList(...$columns));
-
-        return $this;
-    }
+    // public function columns(string|array|Stringable ...$columns): static
+    // {
+    //     $this->getSection(KeywordEnum::COLUMNS)->push(
+    //         $this->expression()->join(', ')->push(...$this->normalizeArguments(...$columns))
+    //     );
+    //     return $this;
+    // }
 
     /**
      * Add a VALUES to the query
@@ -90,104 +80,118 @@ class InsertBuilder extends SqlBuilder implements InsertBuilderInterface
      * 
      * @param array ...$values The values to add
      * 
-     * @return self
+     * @return static
      * 
      * @throws \InvalidArgumentException If the values are empty
      */
-    public function values(...$values): self
+    public function values(...$values): static
     {
+        $this->reset(KeywordEnum::SELECT);
 
-        $this->getSection(KeywordEnum::SELECT)->reset();
+        $columns = array_keys($values[0]);
 
-        $this->getSection(KeywordEnum::VALUES)
-            ->push(
-                ...array_map(
-                    function ($value) {
-                        return $this->expression(KeywordEnum::VALUES, ...$value);
-                    },
-                    $values
-                )
-            );
+        $this->getSection(KeywordEnum::COLUMNS)->reset()->push(
+            $this->aggregateAliasableList(...$columns)->wrap('(', ')')
+        );
+        // $this->getSection(KeywordEnum::VALUES)->push(
+        //     $this->aggregateAliasableList(...$values)->wrap('(', ')')
+        // );
+
+        foreach ($values as $_values) {
+
+            $_values = array_values($_values);
+
+            $this->getSection(KeywordEnum::VALUES)->push(
+                $this->expression()->join(',')->wrap('(', ')')
+                    ->push(
+                        ...array_map(
+                            function ($value) {
+                                return $value instanceof SqlExpressionInterface 
+                                    ? $value->wrap('(', ')') 
+                                    : $this->expression()->quote($value);
+                            },
+                            $_values
+                        )
+                    )
+            )->join(', ');
+        }
 
         return $this;
     }
+            
 
     /**
      * Add a SELECT to the query
      * 
      * @param SqlExpressionInterface $select The select query
      * 
-     * @return self
+     * @return static
      */
-    public function fromSelect(SqlExpressionInterface $select): self
+    public function fromSelect(string|Stringable|SqlExpressionInterface $select): static
     {
         $this->getSection(KeywordEnum::VALUES)->reset();
-
-
-        $this->getSection(KeywordEnum::SELECT)
-            ->reset()
-            ->push($this->expression(KeywordEnum::SELECT, $select));
+        $this->getSection(KeywordEnum::SELECT)->reset()->push($select);
 
         return $this;
     }
+
 
     /**
-     * Add an ON DUPLICATE KEY UPDATE to the query
-     * 
-     * @param array|null $columns The columns to update. If null, ignore the duplicate key
-     * $columns: must be an array with the column as key and the value as scalar value
-     *           or as SqlExpressionInterface
-     *           (['column' => 'value', 'column' => <SqlExpressionInterface>, ...])
-     * 
-     * @return self
+     * {@inheritDoc}
      */
-    public function onDuplicateKey(?array $columns = null): self
+    public function onDuplicateKey(array $columns): static
     {
-        if ($columns === null) {
-            $this->getSection(KeywordEnum::ON_DUPLICATE_KEY)->reset();
-            return $this;
-        }
+        $this->getSection(KeywordEnum::ON_DUPLICATE)->reset();
 
-        $this->getSection(KeywordEnum::ON_DUPLICATE_KEY)
-            ->push(
-                $this->expression(
-                    KeywordEnum::ON_DUPLICATE_KEY,
-                    ...array_map(
-                        fn($column, $value) => $this->expression(
-                            sprintf('%s = %s', 
-                                $this->expression($column)->decorate(Decorator::identifier()),
-                                $value instanceof SqlExpressionInterface 
-                                    ? $value 
-                                    : $this->expression($value)->decorate(Decorator::identifier())
-                            )
-                        ),
-                        array_keys($columns),
-                        $columns
-                    )
+        $this->getSection(KeywordEnum::ON_DUPLICATE)->push(
+            $this->expression()->join(', ')->push(
+                ...array_map(
+                    function ($column, $value) {
+                        return $this->expression()->join(' ')
+                            ->push(
+                                $this->expression()->identifier($column),
+                                ' = ',
+                                //$this->expression()->keyword(KeywordEnum::EQUAL),
+                                $value instanceof SqlExpressionInterface
+                                    ? $value
+                                    : $this->expression()->quote($value)
+                            );
+                    },
+                    array_keys($columns),
+                    $columns
                 )
-            );
+            )
+        );
 
         return $this;
     }
 
-    protected function getPipeline(): iterable
+    public function returning(string|Stringable ...$columns): static
     {
-        return [
-            KeywordEnum::INSERT => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::INSERT, ' ')),
-            KeywordEnum::IGNORE => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::IGNORE, ' ')),
-            KeywordEnum::DELAYED => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::DELAYED, ' ')),
-            KeywordEnum::INTO => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::INTO, ' ')),
-            KeywordEnum::COLUMNS => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::COLUMNS, '(', ')')),
-            KeywordEnum::VALUES => $this->expression()
-                ->decorate(Decorator::wrapper(KeywordEnum::VALUES, '(', ')')),
-            KeywordEnum::SELECT => $this->expression(),
-            KeywordEnum::ON_DUPLICATE_KEY => $this->expression(),
-        ];
+        $this->getSection(KeywordEnum::RETURNING)
+            ->push(
+                $this->expression()->join(', ')->push(...$this->normalizeArguments(...$columns))
+            );
+        return $this;
+    }
+
+    // public function replace(): static
+    // {
+    //     $this->expression($this->expression()->keyword(KeywordEnum::REPLACE));
+    // }
+
+    protected function getPipeline(): SqlExpressionInterface
+    {
+        return $this->expression(
+            $this->expression()->keyword(KeywordEnum::INSERT),
+            $this->pipeSection(KeywordEnum::IGNORE),
+            $this->pipeSection(KeywordEnum::INTO),
+            $this->pipeSection(KeywordEnum::COLUMNS, false),
+            $this->pipeSection(KeywordEnum::VALUES),
+            $this->pipeSection(KeywordEnum::SELECT),
+            $this->pipeSection(KeywordEnum::ON_DUPLICATE),
+            $this->pipeSection(KeywordEnum::RETURNING),
+        )->join(' ');
     }
     
 }
