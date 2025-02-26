@@ -1,17 +1,17 @@
 <?php
 namespace Concept\DBAL\DML;
 
-use Concept\Di\Factory\Service\ServiceFactory;
+use Concept\Singularity\Factory\ServiceFactory;
 
-class DmlManagerFactory extends ServiceFactory
+class DmlManagerFactory extends ServiceFactory implements DmlManagerFactoryInterface
 {
     /**
      * @param mixed ...$args
      * 
      * @return DmlManagerInterface
      */
-    public function create(...$args): DmlManagerInterface
+    public function create(array $args = []): DmlManagerInterface
     {
-        return $this->getFactory()->create(DmlManagerInterface::class, ...$args);
+        return $this->createService(DmlManagerInterface::class, $args);
     }
 }

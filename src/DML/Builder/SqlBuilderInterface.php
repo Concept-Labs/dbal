@@ -10,14 +10,12 @@ use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareInterface;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBC\Contract\ConnectionAwareInterface;
 use Concept\DBC\Result\ResultInterface;
-use Concept\Prototype\PrototypableInterface;
 use Concept\Prototype\ResetableInterface;
 use Stringable;
 
 interface SqlBuilderInterface 
   extends 
     Stringable,
-    PrototypableInterface,
     ResetableInterface,
     SqlExpressionAwareInterface,
     ConnectionAwareInterface,
@@ -40,7 +38,7 @@ interface SqlBuilderInterface
      * 
      * @return static
      */
-    public function reset(string $section = null): static;
+    public function reset(?string $section = null): static;
 
     /**
      * Execute the query and return the result

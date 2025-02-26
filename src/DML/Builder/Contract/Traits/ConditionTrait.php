@@ -60,7 +60,7 @@ trait ConditionTrait
     public function whereCase(
         string|array|SqlExpressionInterface $condition,
         string|SqlExpressionInterface $thenValue,
-        string|SqlExpressionInterface $elseValue = null
+        string|SqlExpressionInterface|null $elseValue = null
     ): static
     {
         return $this->where(
@@ -120,7 +120,7 @@ trait ConditionTrait
     public function havingCase(
         string|array|SqlExpressionInterface $condition,
         string|SqlExpressionInterface $thenValue,
-        string|SqlExpressionInterface $elseValue = null
+        string|SqlExpressionInterface|null $elseValue = null
     ): static
     {
         return $this->having(

@@ -13,9 +13,8 @@ use Concept\DBAL\DML\Builder\Contract\Traits\UnionTrait;
 use Concept\DBAL\DML\Expression\CharEnum;
 use Concept\DBAL\DML\Expression\KeywordEnum;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
-use Concept\DI\Factory\Attribute\Dependent;
 
-#[Dependent]
+
 class SelectBuilder extends SqlBuilder implements SelectBuilderInterface
 {
     use SelectTrait;

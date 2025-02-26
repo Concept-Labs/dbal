@@ -5,15 +5,16 @@
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "mtr",
-            "email": "info.concept.labs@gmail.com"
+            "name": "Viktor Halytskyi",
+            "email": "concept.galitsky@gmail.com"
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.2",
         "concept-labs/exception": "^1",
         "concept-labs/config": "^1",
-        "concept-labs/expression": "^1"
+        "concept-labs/expression": "^1",
+        "concept-labs/dbc": "^1",
     },
     "autoload": {
         "psr-4": {

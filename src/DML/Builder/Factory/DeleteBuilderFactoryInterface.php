@@ -1,7 +1,7 @@
 <?php
 namespace Concept\DBAL\DML\Builder\Factory;
 
-use Concept\Di\Factory\Service\ServiceFactoryInterface;
+use Concept\Singularity\Factory\ServiceFactoryInterface;
 
 interface DeleteBuilderFactoryInterface extends ServiceFactoryInterface
 {}

@@ -19,16 +19,16 @@ trait DeleteTrait
     /**
      * {@inheritDoc}
      */
-    public function from(string|array $table): static
-    {
-        $this->getSection(KeywordEnum::FROM)
-            ->push(
-                match (true) {
-                    is_string($table) => $this->expression()->identifier($table),
-                    is_array($table) => $this->aggregateAliasableList($table),
-                }
-            );
+    // public function from(string|array $table): static
+    // {
+    //     $this->getSection(KeywordEnum::FROM)
+    //         ->push(
+    //             match (true) {
+    //                 is_string($table) => $this->expression()->identifier($table),
+    //                 is_array($table) => $this->aggregateAliasableList($table),
+    //             }
+    //         );
 
-        return $this;
-    }
+    //     return $this;
+    // }
 }

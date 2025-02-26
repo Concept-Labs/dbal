@@ -1,12 +1,12 @@
 <?php
 namespace Concept\DBAL\DML\Expression;
 
-use Concept\Di\Factory\Service\ServiceFactory;
+use Concept\Singularity\Factory\ServiceFactory;
 
 class SqlExpressionFactory extends ServiceFactory implements SqlExpressionFactoryInterface
 {
-    public function create(...$args)
+    public function create(array $args = [])
     {
-        return $this->getFactory()->create(SqlExpressionInterface::class, ...$args);
+        return $this->createService(SqlExpressionInterface::class, $args);
     }
 }

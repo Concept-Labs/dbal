@@ -1,14 +1,15 @@
 <?php
 namespace Concept\DBAL\DML\Builder\Factory;
 
-use Concept\Di\Factory\Service\ServiceFactory;
+
 use Concept\DBAL\DML\Builder\RawBuilderInterface;
+use Concept\Singularity\Factory\ServiceFactory;
 
 class RawBuilderFactory extends ServiceFactory implements RawBuilderFactoryInterface
 {
 
-    public function create(...$args): RawBuilderInterface
+    public function create(array $args = []): RawBuilderInterface
     {
-        return $this->getFactory()->create(RawBuilderInterface::class, ...$args);
+        return $this->createService(RawBuilderInterface::class, $args);
     }
 }

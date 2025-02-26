@@ -2,13 +2,13 @@
 namespace Concept\DBAL\DML\Builder\Factory;
 
 use Concept\DBAL\DML\Builder\DeleteBuilderInterface;
-use Concept\Di\Factory\Service\ServiceFactory;
+use Concept\Singularity\Factory\ServiceFactory;
 
 class DeleteBuilderFactory extends ServiceFactory implements DeleteBuilderFactoryInterface
 {
 
-    public function create(...$args): DeleteBuilderInterface
+    public function create(array $args = []): DeleteBuilderInterface
     {
-        return $this->getFactory()->create(DeleteBuilderInterface::class, ...$args);
+        return $this->createService(DeleteBuilderInterface::class, $args);
     }
 }

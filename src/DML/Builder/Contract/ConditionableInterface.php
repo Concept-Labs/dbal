@@ -65,12 +65,12 @@ interface ConditionableInterface
     public function orWhere(string|SqlExpressionInterface ...$conditions): static;
   
     /**
-     * @todo Add support for subqueries
+     * Add a CASE condition to the query
      */
     public function whereCase(
         string|array|SqlExpressionInterface $condition,
         string|SqlExpressionInterface $thenValue,
-        string|SqlExpressionInterface $elseValue = null
+        string|SqlExpressionInterface|null $elseValue = null
     ): static;
     
     /**

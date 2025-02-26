@@ -2,13 +2,13 @@
 namespace Concept\DBAL\DML\Builder\Factory;
 
 use Concept\DBAL\DML\Builder\UpdateBuilderInterface;
-use Concept\Di\Factory\Service\ServiceFactory;
+use Concept\Singularity\Factory\ServiceFactory;
 
 class UpdateBuilderFactory extends ServiceFactory implements UpdateBuilderFactoryInterface
 {
 
-    public function create(...$args): UpdateBuilderInterface
+    public function create(array $args = []): UpdateBuilderInterface
     {
-        return $this->getFactory()->create(UpdateBuilderInterface::class, ...$args);
+        return $this->createService(UpdateBuilderInterface::class, $args);        
     }
 }

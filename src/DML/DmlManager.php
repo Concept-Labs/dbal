@@ -13,11 +13,14 @@ use Concept\DBAL\DML\Builder\SelectBuilderInterface;
 use Concept\DBAL\DML\Builder\SqlBuilderInterface;
 use Concept\DBAL\DML\Builder\UpdateBuilderInterface;
 use Concept\DBAL\DML\Builder\DeleteBuilderInterface;
+use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBAL\Exception\RuntimeException;
+use Concept\DBC\ConnectionInterface;
+use Concept\Singularity\Contract\Lifecycle\SharedInterface;
 
-/*abstract*/ class DmlManager 
+class DmlManager 
     implements 
-    DmlManagerInterface
+    DmlManagerInterface, SharedInterface
 {
 
     use SqlExpressionAwareTrait;
@@ -33,13 +36,15 @@ use Concept\DBAL\Exception\RuntimeException;
     private ?DeleteBuilderInterface $deleteBuilderPrototype = null;
 
     public function __construct(
+        private ConnectionInterface $connection,
+        private SqlExpressionInterface $sqlExpressionPrototype,
         private RawBuilderFactoryInterface $rawBuilderFactory,
         private SelectBuilderFactoryInterface $selectBuilderFactory,
         private InsertBuilderFactoryInterface $insertBuilderFactory,
         private UpdateBuilderFactoryInterface $updateBuilderFactory,
         private DeleteBuilderFactoryInterface $deleteBuilderFactory
     ) {
-        
+        echo "<hr>Inside DmlManager::__construct<hr>";
     }
 
     /**
@@ -64,6 +69,11 @@ use Concept\DBAL\Exception\RuntimeException;
     public function update(string|array $table): UpdateBuilderInterface
     {
         return $this->getUpdateBuilder()->update($table);
+    }
+
+    public function before(): void
+    {
+        echo "<hr>Inside DmlManager::before<hr>";
     }
 
     /**

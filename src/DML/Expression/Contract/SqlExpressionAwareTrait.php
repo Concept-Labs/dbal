@@ -1,42 +1,23 @@
 <?php
 namespace Concept\DBAL\DML\Expression\Contract;
 
-use Concept\DBAL\DML\Expression\SqlExpressionFactoryInterface;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBAL\Exception\RuntimeException;
-use Concept\DBC\Contract\ConnectionAwareInterface;
-use Concept\DI\Factory\Attribute\Injector;
 
 trait SqlExpressionAwareTrait
 {
-    private ?SqlExpressionInterface $sqlExpressionPrototype = null;
-    private ?SqlExpressionFactoryInterface $sqlExpressionFactory = null;
+    //private ?SqlExpressionInterface $sqlExpressionPrototype = null;
 
     /**
-     * Inject the expression factory
+     * Set the expression prototype
      * 
-     * @param SqlExpressionFactoryInterface $expressionFactory The expression factory
+     * @param SqlExpressionInterface $sqlExpressionPrototype The prototype
      * 
      * @return void
      */
-    #[Injector]
-    public function withSqlExpressionFactory(SqlExpressionFactoryInterface $sqlExpressionFactory): void
+    public function setSqlExpressionPrototype(SqlExpressionInterface $sqlExpressionPrototype): void
     {
-        $this->sqlExpressionFactory = $sqlExpressionFactory;
-    }
-
-    /**
-     * Get the expression factory
-     * 
-     * @return SqlExpressionFactoryInterface
-     */
-    protected function getSqlExpressionFactory(): SqlExpressionFactoryInterface
-    {
-        if (null === $this->sqlExpressionFactory) {
-            throw new RuntimeException('The expression factory is not set');
-        }
-
-        return $this->sqlExpressionFactory;
+        $this->sqlExpressionPrototype = $sqlExpressionPrototype;
     }
     
 
@@ -47,20 +28,10 @@ trait SqlExpressionAwareTrait
      */
     protected function getExpressionPrototype(): SqlExpressionInterface
     {
-        if (null === $this->sqlExpressionPrototype) {
-            $this->sqlExpressionPrototype = $this->getSqlExpressionFactory()->create();
-        }
-$d = $this->getConnection()->getDriver();
-if (null === $d) {
-    $test = 1;
-}
-        if ($this instanceof ConnectionAwareInterface && null !== $this->getConnection()) {
-            $this->sqlExpressionPrototype->setQuoteDecorator(
-                fn($value) => $this->getConnection()->getDriver()->quote($value)
-            );
-        }            
-
-        return $this->sqlExpressionPrototype->prototype();
+        return clone (
+            $this->sqlExpressionPrototype 
+            ?? throw new RuntimeException('The expression prototype is not set.')
+        );
     }
 
     /**
@@ -81,8 +52,8 @@ if (null === $d) {
         return $expression;
     }
 
-    // public function expr(...$expressions): SqlExpressionInterface
-    // {
-    //     return $this->expression(...$expressions);
-    // }
+    public function sql(...$expressions): SqlExpressionInterface
+    {
+        return $this->expression(...$expressions);
+    }
 }

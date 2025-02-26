@@ -3,7 +3,6 @@ namespace Concept\DBAL\DML\Expression;
 
 use Concept\DBAL\DML\Expression\Contract\AggregateFunctionsInterface;
 use Concept\Expression\ExpressionInterface;
-use Stringable;
 
 interface SqlExpressionInterface 
     extends 
@@ -21,6 +20,8 @@ interface SqlExpressionInterface
     const TYPE_OPERATOR = 'operator';
     const TYPE_ALIAS = 'alias';
     const TYPE_CONDITION = 'condition';
+
+    
 
     /**
      * Set the quote decorator
@@ -72,10 +73,10 @@ interface SqlExpressionInterface
     /**
      * Create a quoted value
      * 
-     * @param string $value
+     * @param string|null $value
      * @return $this
      */
-    public function quote(string $value = null): static;
+    public function quote(?string $value = null): static;
     
     /**
      * Quote the items in the expression
@@ -138,6 +139,6 @@ interface SqlExpressionInterface
     public function case(
         string|SqlExpressionInterface $condition,
         string|SqlExpressionInterface $thenValue,
-        string|SqlExpressionInterface $elseValue = null
+        string|SqlExpressionInterface|null $elseValue = null
     ): static;
 }

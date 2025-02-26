@@ -4,33 +4,16 @@ namespace Concept\DBAL\DML\Expression;
 
 use Concept\DBAL\DML\Expression\Contract\AggregateFunctionsTrait;
 use Concept\Expression\Expression;
-use Concept\DBAL\DML\Expression\Dialect\DialectAdapterInterface;
 use Concept\DBAL\Exception\RuntimeException;
-use Stringable;
 
 class SqlExpression extends Expression implements SqlExpressionInterface
 {
 
     use AggregateFunctionsTrait;
 
-    private ?DialectAdapterInterface $dialectAdapter = null;
     private  $quoteDecorator = null;
 
-    public function __clone()
-    {
-        parent::__clone();
-    }
-
-    protected function ___diDialectAdapter(DialectAdapterInterface $dialectAdapter): void
-    {
-        $this->dialectAdapter = $dialectAdapter;
-    }
-
-    protected function getDialectAdapter(): DialectAdapterInterface
-    {
-        return $this->dialectAdapter;
-    }
-
+    
     public function setQuoteDecorator(callable $quoteDecorator): static
     {
         $this->quoteDecorator = $quoteDecorator;
@@ -41,7 +24,9 @@ class SqlExpression extends Expression implements SqlExpressionInterface
     protected function getQuoteDecorator(): callable
     {
         if (null === $this->quoteDecorator) {
-            throw new RuntimeException('The quote decorator is not set');
+            $this->quoteDecorator = fn($value) => sprintf("{{Q}}%s{{Q}}", $value);
+            //$this->getDialectAdapter()->quote($value);
+            //throw new RuntimeException('The quote decorator is not set');
             //$this->quoteDecorator = fn($value) => $this->getDialectAdapter()->quote($value);
         }
         return $this->quoteDecorator;
@@ -207,7 +192,7 @@ class SqlExpression extends Expression implements SqlExpressionInterface
     public function case(
         string|SqlExpressionInterface $condition,
         string|SqlExpressionInterface $thenValue,
-        string|SqlExpressionInterface $elseValue = null): static
+        string|SqlExpressionInterface|null $elseValue = null): static
     {
         $caseExpression = $this->prototype()
             ->wrap(' ')
@@ -238,14 +223,12 @@ class SqlExpression extends Expression implements SqlExpressionInterface
         return $caseExpression;
     }
 
-
-
     /**
      * {@inheritDoc}
      */
     public function quoteIdentifier(string $identifier): string
     {
-        $quoteChar = $this->getDialectAdapter()->getIdentifierQuoteChar();
+        $quoteChar = $this->getIdentifierQuoteChar();
 
         if (strpos($identifier, $quoteChar) !== false) {
             return $identifier;
@@ -256,6 +239,11 @@ class SqlExpression extends Expression implements SqlExpressionInterface
         }
 
         return $this->quoteQualifiedIdentifier($identifier);
+    }
+
+    protected function getIdentifierQuoteChar(): string
+    {
+        return CharEnum::BACKTICK;
     }
 
     /**

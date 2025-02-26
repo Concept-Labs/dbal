@@ -4,9 +4,7 @@ namespace Concept\DBAL\DML\Builder;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBAL\DML\Expression\KeywordEnum;
 use Stringable;
-use Concept\DI\Factory\Attribute\Dependent;
 
-#[Dependent]
 class InsertBuilder extends SqlBuilder implements InsertBuilderInterface
 {
 

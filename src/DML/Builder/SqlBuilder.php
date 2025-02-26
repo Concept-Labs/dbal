@@ -13,10 +13,7 @@ use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareTrait;
 use Concept\DBAL\Exception\InvalidArgumentException;
 use Concept\DBAL\Exception\RuntimeException;
 use Concept\DBC\Contract\ConnectionAwareTrait;
-use Concept\DI\Factory\Attribute\Dependent;
 
-
-#[Dependent]
 abstract class SqlBuilder 
     implements 
         SqlBuilderInterface
@@ -30,14 +27,19 @@ abstract class SqlBuilder
     use BindableTrait;
 
 
+    /**
+     * The sections of the query
+     * e.g. SELECT, FROM, WHERE, etc
+     */
     protected array $sections = [];
+
+    /**
+     * The bindings
+     */
     protected array $bindings = [];
 
-    public function __clone(){}
-
-    public function prototype(): static
-    {
-        return clone $this;
+    public function __construct(private SqlExpressionInterface $sqlExpressionPrototype)
+    {    
     }
     
     /**
@@ -59,7 +61,7 @@ abstract class SqlBuilder
     /**
      * {@inheritDoc}
      */
-    public function reset(string $section = null): static
+    public function reset(?string $section = null): static
     {
         if ($section === null) {
             $this->sections = [];
@@ -114,24 +116,9 @@ abstract class SqlBuilder
                         '*' == $expression => $expression,
                         default => $this->expression()->identifier($expression)
                     },
-                    // $expression instanceof SqlExpressionInterface
-                    //     ? $expression->wrap('(', ')')
-                    //     : ('*' == $expression ? $expression : $this->expression()->identifier($expression)),
                     default => $this->expression()->alias($alias, $expression)
                 }
             );
-
-            // if (is_numeric($alias)) {
-            //     $list->push(
-            //         $expression instanceof SqlExpressionInterface
-            //             ? $expression->wrap('(', ')')
-            //             : ('*' == $expression ? $expression : $this->expression()->identifier($expression))
-            //     );
-            // } else {
-            //     $list->push(
-            //         $this->expression()->alias($alias, $expression)
-            //     );
-            // }
         }
 
         return $list;
@@ -182,25 +169,20 @@ abstract class SqlBuilder
      */
     public function execute(): ResultInterface
     {
-        if (!$this->hasConnection()) {
-            throw new RuntimeException('No connection set');
-        }
-
         if (!$this->getConnection()->isConnected()) {
             $this->getConnection()->connect();
         }
 
-        $sql = (string)$this->asExpression();
-
-        if (empty($sql)) {
+        if (empty($sql = (string)$this->asExpression())) {
             throw new RuntimeException('No query to execute');
         }
 
-        $params = $this->getBindings();
-
         return $this->getConnection()
             ->getDriver()
-                ->execute($sql, $params);
+                ->execute(
+                    $sql, 
+                    $this->getBindings()
+                );
     }
 
 }

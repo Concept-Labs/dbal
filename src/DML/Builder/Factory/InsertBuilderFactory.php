@@ -1,14 +1,14 @@
 <?php
 namespace Concept\DBAL\DML\Builder\Factory;
 
-use Concept\Di\Factory\Service\ServiceFactory;
 use Concept\DBAL\DML\Builder\InsertBuilderInterface;
+use Concept\Singularity\Factory\ServiceFactory;
 
 class InsertBuilderFactory extends ServiceFactory implements InsertBuilderFactoryInterface
 {
 
-    public function create(...$args): InsertBuilderInterface
+    public function create(array $args = []): InsertBuilderInterface
     {
-        return $this->getFactory()->create(InsertBuilderInterface::class, ...$args);
+        return $this->createService(InsertBuilderInterface::class, $args);
     }
 }
