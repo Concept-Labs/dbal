@@ -14,7 +14,7 @@
         "concept-labs/exception": "^1",
         "concept-labs/config": "^1",
         "concept-labs/expression": "^1",
-        "concept-labs/dbc": "^1",
+        "concept-labs/dbc": "^1"
     },
     "autoload": {
         "psr-4": {
