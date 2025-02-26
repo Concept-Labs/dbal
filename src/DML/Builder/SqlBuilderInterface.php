@@ -10,7 +10,7 @@ use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareInterface;
 use Concept\DBAL\DML\Expression\SqlExpressionInterface;
 use Concept\DBC\Contract\ConnectionAwareInterface;
 use Concept\DBC\Result\ResultInterface;
-use Concept\Prototype\ResetableInterface;
+use Concept\Singularity\Contract\Behavior\ResetableInterface;
 use Stringable;
 
 interface SqlBuilderInterface 
