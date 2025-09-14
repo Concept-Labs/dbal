@@ -12,9 +12,9 @@
     "require": {
         "php": ">=8.2",
         "concept-labs/exception": "^1",
-        "concept-labs/config": "^1",
+        "concept-labs/config": "^2",
         "concept-labs/expression": "^1",
-        "concept-labs/dbc": "^1"
+        "concept-labs/dbc-pdo": "^1"
     },
     "autoload": {
         "psr-4": {
