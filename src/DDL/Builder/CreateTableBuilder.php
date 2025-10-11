@@ -2,6 +2,8 @@
 namespace Concept\DBAL\DDL\Builder;
 
 use Concept\DBAL\DML\Builder\SqlBuilder;
+use Concept\DBAL\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterface
 {
@@ -12,6 +14,7 @@ class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterfa
     protected array $indexes = [];
     protected array $tableOptions = [];
     protected bool $ifNotExists = false;
+    protected string $table = '';
 
     public function createTable(string $table): static
     {
@@ -69,70 +72,132 @@ class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterfa
         return $this;
     }
 
-    protected function buildQuery(): string
+    protected function getPipeline(): SqlExpressionInterface
     {
-        $parts = ['CREATE TABLE'];
-
+        $expr = $this->expression();
+        
+        // CREATE TABLE
+        $expr->push($this->expression()->keyword('CREATE'))
+            ->push($this->expression()->keyword('TABLE'));
+        
+        // IF NOT EXISTS
         if ($this->ifNotExists) {
-            $parts[] = 'IF NOT EXISTS';
+            $expr->push($this->expression()->keyword('IF'))
+                ->push($this->expression()->keyword('NOT'))
+                ->push($this->expression()->keyword('EXISTS'));
         }
-
-        $parts[] = $this->table;
-
-        // Build column definitions
-        $columnDefs = [];
+        
+        // Table name
+        $expr->push($this->expression()->identifier($this->table));
+        
+        // Column definitions
+        $columnDefs = $this->expression()->join(', ');
+        
         foreach ($this->columns as $name => $column) {
-            $def = $name . ' ' . $column['type'];
+            $colDef = $this->expression()
+                ->push($this->expression()->identifier($name))
+                ->push($column['type']);
+            
             foreach ($column['options'] as $key => $value) {
                 if (is_numeric($key)) {
-                    $def .= ' ' . $value;
+                    $colDef->push($value);
                 } else {
-                    $def .= ' ' . $key . ' ' . $value;
+                    $colDef->push($key)->push($value);
                 }
             }
-            $columnDefs[] = $def;
+            
+            $columnDefs->push($colDef->join(' '));
         }
-
+        
         // Add primary key
         if ($this->primaryKey) {
-            $columnDefs[] = 'PRIMARY KEY (' . implode(', ', $this->primaryKey) . ')';
+            $pkCols = $this->expression()->join(', ');
+            foreach ($this->primaryKey as $col) {
+                $pkCols->push($this->expression()->identifier($col));
+            }
+            
+            $columnDefs->push(
+                $this->expression()
+                    ->push($this->expression()->keyword('PRIMARY'))
+                    ->push($this->expression()->keyword('KEY'))
+                    ->push($pkCols->wrap('(', ')'))
+                    ->join(' ')
+            );
         }
-
+        
         // Add unique constraints
         foreach ($this->uniqueConstraints as $unique) {
-            $columnDefs[] = 'UNIQUE (' . implode(', ', $unique) . ')';
+            $uniqCols = $this->expression()->join(', ');
+            foreach ($unique as $col) {
+                $uniqCols->push($this->expression()->identifier($col));
+            }
+            
+            $columnDefs->push(
+                $this->expression()
+                    ->push($this->expression()->keyword('UNIQUE'))
+                    ->push($uniqCols->wrap('(', ')'))
+                    ->join(' ')
+            );
         }
-
+        
         // Add foreign keys
         foreach ($this->foreignKeys as $fk) {
-            $def = 'FOREIGN KEY (' . $fk['column'] . ') REFERENCES ' . 
-                   $fk['referenced_table'] . ' (' . $fk['referenced_column'] . ')';
+            $fkExpr = $this->expression()
+                ->push($this->expression()->keyword('FOREIGN'))
+                ->push($this->expression()->keyword('KEY'))
+                ->push(
+                    $this->expression()
+                        ->push($this->expression()->identifier($fk['column']))
+                        ->wrap('(', ')')
+                )
+                ->push($this->expression()->keyword('REFERENCES'))
+                ->push($this->expression()->identifier($fk['referenced_table']))
+                ->push(
+                    $this->expression()
+                        ->push($this->expression()->identifier($fk['referenced_column']))
+                        ->wrap('(', ')')
+                );
             
             if (!empty($fk['options']['on_delete'])) {
-                $def .= ' ON DELETE ' . $fk['options']['on_delete'];
+                $fkExpr->push($this->expression()->keyword('ON'))
+                    ->push($this->expression()->keyword('DELETE'))
+                    ->push($this->expression()->keyword($fk['options']['on_delete']));
             }
             if (!empty($fk['options']['on_update'])) {
-                $def .= ' ON UPDATE ' . $fk['options']['on_update'];
+                $fkExpr->push($this->expression()->keyword('ON'))
+                    ->push($this->expression()->keyword('UPDATE'))
+                    ->push($this->expression()->keyword($fk['options']['on_update']));
             }
             
-            $columnDefs[] = $def;
+            $columnDefs->push($fkExpr->join(' '));
         }
-
+        
         // Add indexes
         foreach ($this->indexes as $index) {
             $indexName = $index['name'] ?? 'idx_' . implode('_', $index['columns']);
-            $columnDefs[] = 'INDEX ' . $indexName . ' (' . implode(', ', $index['columns']) . ')';
+            $indexCols = $this->expression()->join(', ');
+            foreach ($index['columns'] as $col) {
+                $indexCols->push($this->expression()->identifier($col));
+            }
+            
+            $columnDefs->push(
+                $this->expression()
+                    ->push($this->expression()->keyword('INDEX'))
+                    ->push($this->expression()->identifier($indexName))
+                    ->push($indexCols->wrap('(', ')'))
+                    ->join(' ')
+            );
         }
-
-        $parts[] = '(' . implode(', ', $columnDefs) . ')';
-
+        
+        $expr->push($columnDefs->wrap('(', ')'));
+        
         // Add table options
         if (!empty($this->tableOptions)) {
             foreach ($this->tableOptions as $key => $value) {
-                $parts[] = $key . '=' . $value;
+                $expr->push($this->expression()->push($key . '=' . $value));
             }
         }
-
-        return implode(' ', $parts);
+        
+        return $expr->join(' ');
     }
 }

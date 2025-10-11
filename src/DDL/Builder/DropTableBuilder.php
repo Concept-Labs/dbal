@@ -2,11 +2,13 @@
 namespace Concept\DBAL\DDL\Builder;
 
 use Concept\DBAL\DML\Builder\SqlBuilder;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 class DropTableBuilder extends SqlBuilder implements DropTableBuilderInterface
 {
     protected bool $ifExists = false;
     protected ?string $cascadeOption = null;
+    protected string $table = '';
 
     public function dropTable(string $table): static
     {
@@ -32,20 +34,28 @@ class DropTableBuilder extends SqlBuilder implements DropTableBuilderInterface
         return $this;
     }
 
-    protected function buildQuery(): string
+    protected function getPipeline(): SqlExpressionInterface
     {
-        $parts = ['DROP TABLE'];
+        $expr = $this->expression();
+        
+        // DROP TABLE
+        $expr->push($this->expression()->keyword('DROP'))
+            ->push($this->expression()->keyword('TABLE'));
 
+        // IF EXISTS
         if ($this->ifExists) {
-            $parts[] = 'IF EXISTS';
+            $expr->push($this->expression()->keyword('IF'))
+                ->push($this->expression()->keyword('EXISTS'));
         }
 
-        $parts[] = $this->table;
+        // Table name
+        $expr->push($this->expression()->identifier($this->table));
 
+        // CASCADE or RESTRICT
         if ($this->cascadeOption) {
-            $parts[] = $this->cascadeOption;
+            $expr->push($this->expression()->keyword($this->cascadeOption));
         }
 
-        return implode(' ', $parts);
+        return $expr->join(' ');
     }
 }
