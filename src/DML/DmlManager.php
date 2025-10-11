@@ -44,7 +44,6 @@ class DmlManager
         private UpdateBuilderFactoryInterface $updateBuilderFactory,
         private DeleteBuilderFactoryInterface $deleteBuilderFactory
     ) {
-        echo "<hr>Inside DmlManager::__construct<hr>";
     }
 
     /**

@@ -47,6 +47,36 @@
                     },
                     "Concept\\DBAL\\DML\\Builder\\DeleteBuilderInterface": {
                         "class": "Concept\\DBAL\\DML\\Builder\\DeleteBuilder"
+                    },
+                    "Concept\\DBAL\\DDL\\DdlManagerFactoryInterface": {
+                        "class": "Concept\\DBAL\\DDL\\DdlManagerFactory"
+                    },
+                    "Concept\\DBAL\\DDL\\DdlManagerInterface": {
+                        "class": "Concept\\DBAL\\DDL\\DdlManager"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\Factory\\CreateTableBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\Factory\\CreateTableBuilderFactory"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\CreateTableBuilderInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\CreateTableBuilder"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\Factory\\AlterTableBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\Factory\\AlterTableBuilderFactory"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\AlterTableBuilderInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\AlterTableBuilder"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\Factory\\DropTableBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\Factory\\DropTableBuilderFactory"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\DropTableBuilderInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\DropTableBuilder"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\Factory\\TruncateTableBuilderFactoryInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\Factory\\TruncateTableBuilderFactory"
+                    },
+                    "Concept\\DBAL\\DDL\\Builder\\TruncateTableBuilderInterface": {
+                        "class": "Concept\\DBAL\\DDL\\Builder\\TruncateTableBuilder"
                     }
                 }
             }
