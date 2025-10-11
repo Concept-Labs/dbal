@@ -2,8 +2,8 @@
 
 namespace Concept\DBAL\DML\Builder\Contract\Traits;
 
-use Concept\DBAL\DML\Expression\KeywordEnum;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 use Stringable;
 
 trait OrderByTrait

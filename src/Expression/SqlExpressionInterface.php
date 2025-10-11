@@ -1,7 +1,7 @@
 <?php
-namespace Concept\DBAL\DML\Expression;
+namespace Concept\DBAL\Expression;
 
-use Concept\DBAL\DML\Expression\Contract\AggregateFunctionsInterface;
+use Concept\DBAL\Expression\Contract\AggregateFunctionsInterface;
 use Concept\Expression\ExpressionInterface;
 
 interface SqlExpressionInterface 

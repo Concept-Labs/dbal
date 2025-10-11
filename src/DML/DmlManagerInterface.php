@@ -5,7 +5,7 @@ use Concept\DBAL\DML\Builder\DeleteBuilderInterface;
 use Concept\DBAL\DML\Builder\InsertBuilderInterface;
 use Concept\DBAL\DML\Builder\SelectBuilderInterface;
 use Concept\DBAL\DML\Builder\UpdateBuilderInterface;
-use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareInterface;
+use Concept\DBAL\Expression\Contract\SqlExpressionAwareInterface;
 
 interface DmlManagerInterface 
    extends 

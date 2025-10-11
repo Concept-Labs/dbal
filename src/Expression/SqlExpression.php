@@ -1,8 +1,10 @@
 <?php
 
-namespace Concept\DBAL\DML\Expression;
+namespace Concept\DBAL\Expression;
 
-use Concept\DBAL\DML\Expression\Contract\AggregateFunctionsTrait;
+use Concept\DBAL\Expression\Contract\AggregateFunctionsTrait;
+use Concept\DBAL\Expression\Dialect\SqlDialectInterface;
+use Concept\DBAL\Expression\Dialect\MySqlDialect;
 use Concept\Expression\Expression;
 use Concept\DBAL\Exception\RuntimeException;
 
@@ -11,7 +13,34 @@ class SqlExpression extends Expression implements SqlExpressionInterface
 
     use AggregateFunctionsTrait;
 
-    private  $quoteDecorator = null;
+    private $quoteDecorator = null;
+    private ?SqlDialectInterface $dialect = null;
+
+    /**
+     * Set the SQL dialect
+     * 
+     * @param SqlDialectInterface $dialect The SQL dialect
+     * @return static
+     */
+    public function setDialect(SqlDialectInterface $dialect): static
+    {
+        $this->dialect = $dialect;
+        return $this;
+    }
+
+    /**
+     * Get the SQL dialect
+     * 
+     * @return SqlDialectInterface
+     */
+    protected function getDialect(): SqlDialectInterface
+    {
+        if (null === $this->dialect) {
+            // Default to MySQL dialect for backward compatibility
+            $this->dialect = new MySqlDialect();
+        }
+        return $this->dialect;
+    }
 
     
     public function setQuoteDecorator(callable $quoteDecorator): static
@@ -24,10 +53,9 @@ class SqlExpression extends Expression implements SqlExpressionInterface
     protected function getQuoteDecorator(): callable
     {
         if (null === $this->quoteDecorator) {
-            $this->quoteDecorator = fn($value) => sprintf("{{Q}}%s{{Q}}", $value);
-            //$this->getDialectAdapter()->quote($value);
-            //throw new RuntimeException('The quote decorator is not set');
-            //$this->quoteDecorator = fn($value) => $this->getDialectAdapter()->quote($value);
+            // Use dialect for quoting if available
+            $dialect = $this->getDialect();
+            $this->quoteDecorator = fn($value) => $dialect->quoteValue($value);
         }
         return $this->quoteDecorator;
     }
@@ -228,22 +256,12 @@ class SqlExpression extends Expression implements SqlExpressionInterface
      */
     public function quoteIdentifier(string $identifier): string
     {
-        $quoteChar = $this->getIdentifierQuoteChar();
-
-        if (strpos($identifier, $quoteChar) !== false) {
-            return $identifier;
-        }
-
-        if (strpos($identifier, CharEnum::DOT) === false) {
-            return $quoteChar . $identifier . $quoteChar;
-        }
-
-        return $this->quoteQualifiedIdentifier($identifier);
+        return $this->getDialect()->quoteIdentifier($identifier);
     }
 
     protected function getIdentifierQuoteChar(): string
     {
-        return CharEnum::BACKTICK;
+        return $this->getDialect()->getIdentifierQuoteChar();
     }
 
     /**
@@ -251,13 +269,7 @@ class SqlExpression extends Expression implements SqlExpressionInterface
      */
     public function quoteQualifiedIdentifier(string $identifier): string
     {
-        return join(
-            CharEnum::DOT,
-            array_map(
-                fn($part) => $this->quoteIdentifier($part),
-                explode(CharEnum::DOT, $identifier)
-            )
-        );
+        return $this->getDialect()->quoteIdentifier($identifier);
     }
 
     

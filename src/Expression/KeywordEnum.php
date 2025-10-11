@@ -1,5 +1,5 @@
 <?php
-namespace Concept\DBAL\DML\Expression;
+namespace Concept\DBAL\Expression;
 
 class KeywordEnum
     {

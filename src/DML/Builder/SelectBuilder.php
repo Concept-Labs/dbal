@@ -10,9 +10,9 @@ use Concept\DBAL\DML\Builder\Contract\Traits\LockTrait;
 use Concept\DBAL\DML\Builder\Contract\Traits\OrderByTrait;
 use Concept\DBAL\DML\Builder\Contract\Traits\SelectTrait;
 use Concept\DBAL\DML\Builder\Contract\Traits\UnionTrait;
-use Concept\DBAL\DML\Expression\CharEnum;
-use Concept\DBAL\DML\Expression\KeywordEnum;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\CharEnum;
+use Concept\DBAL\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 
 class SelectBuilder extends SqlBuilder implements SelectBuilderInterface

@@ -1,8 +1,8 @@
 <?php
 namespace Concept\DBAL\DML\Builder;
 
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
-use Concept\DBAL\DML\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\KeywordEnum;
 
 
 class RawBuilder extends SqlBuilder implements RawBuilderInterface
