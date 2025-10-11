@@ -71,10 +71,6 @@ class DmlManager
         return $this->getUpdateBuilder()->update($table);
     }
 
-    public function before(): void
-    {
-        echo "<hr>Inside DmlManager::before<hr>";
-    }
 
     /**
      * {@inheritDoc}
@@ -167,7 +163,7 @@ class DmlManager
     /**
      * Create a new delete builder
      * 
-     * @return DeleteBuilderInterface
+`     * @return DeleteBuilderInterface
      */
     protected function getDeleteBuilder(): DeleteBuilderInterface
     {

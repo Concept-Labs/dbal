@@ -3,6 +3,9 @@
         "package": {
             "concept-labs/dbal": {
                 "preference": {
+                    "Concept\\DBAL\\SqlManagerInterface": {
+                        "class": "Concept\\DBAL\\SqlManager"
+                    },
                     "Concept\\DBAL\\DML\\Expression\\SqlExpressionInterface": {
                         "class": "Concept\\DBAL\\DML\\Expression\\SqlExpression"
                     },
