@@ -74,54 +74,56 @@ class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterfa
 
     protected function getPipeline(): SqlExpressionInterface
     {
-        $expr = $this->expression();
-        
-        // CREATE TABLE
-        $expr->push($this->expression()->keyword('CREATE'))
-            ->push($this->expression()->keyword('TABLE'));
+        $expr = $this->expression(
+            $this->expression()->keyword('CREATE'),
+            $this->expression()->keyword('TABLE')
+        );
         
         // IF NOT EXISTS
         if ($this->ifNotExists) {
-            $expr->push($this->expression()->keyword('IF'))
-                ->push($this->expression()->keyword('NOT'))
-                ->push($this->expression()->keyword('EXISTS'));
+            $expr(
+                $this->expression()->keyword('IF'),
+                $this->expression()->keyword('NOT'),
+                $this->expression()->keyword('EXISTS')
+            );
         }
         
         // Table name
-        $expr->push($this->expression()->identifier($this->table));
+        $expr($this->expression()->identifier($this->table));
         
         // Column definitions
         $columnDefs = $this->expression()->join(', ');
         
         foreach ($this->columns as $name => $column) {
-            $colDef = $this->expression()
-                ->push($this->expression()->identifier($name))
-                ->push($column['type']);
+            $colDef = $this->expression(
+                $this->expression()->identifier($name),
+                $column['type']
+            );
             
             foreach ($column['options'] as $key => $value) {
                 if (is_numeric($key)) {
-                    $colDef->push($value);
+                    $colDef($value);
                 } else {
-                    $colDef->push($key)->push($value);
+                    $colDef($key, $value);
                 }
             }
             
-            $columnDefs->push($colDef->join(' '));
+            $columnDefs($colDef->join(' '));
         }
         
         // Add primary key
         if ($this->primaryKey) {
             $pkCols = $this->expression()->join(', ');
             foreach ($this->primaryKey as $col) {
-                $pkCols->push($this->expression()->identifier($col));
+                $pkCols($this->expression()->identifier($col));
             }
             
-            $columnDefs->push(
-                $this->expression()
-                    ->push($this->expression()->keyword('PRIMARY'))
-                    ->push($this->expression()->keyword('KEY'))
-                    ->push($pkCols->wrap('(', ')'))
-                    ->join(' ')
+            $columnDefs(
+                $this->expression(
+                    $this->expression()->keyword('PRIMARY'),
+                    $this->expression()->keyword('KEY'),
+                    $pkCols->wrap('(', ')')
+                )->join(' ')
             );
         }
         
@@ -129,47 +131,44 @@ class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterfa
         foreach ($this->uniqueConstraints as $unique) {
             $uniqCols = $this->expression()->join(', ');
             foreach ($unique as $col) {
-                $uniqCols->push($this->expression()->identifier($col));
+                $uniqCols($this->expression()->identifier($col));
             }
             
-            $columnDefs->push(
-                $this->expression()
-                    ->push($this->expression()->keyword('UNIQUE'))
-                    ->push($uniqCols->wrap('(', ')'))
-                    ->join(' ')
+            $columnDefs(
+                $this->expression(
+                    $this->expression()->keyword('UNIQUE'),
+                    $uniqCols->wrap('(', ')')
+                )->join(' ')
             );
         }
         
         // Add foreign keys
         foreach ($this->foreignKeys as $fk) {
-            $fkExpr = $this->expression()
-                ->push($this->expression()->keyword('FOREIGN'))
-                ->push($this->expression()->keyword('KEY'))
-                ->push(
-                    $this->expression()
-                        ->push($this->expression()->identifier($fk['column']))
-                        ->wrap('(', ')')
-                )
-                ->push($this->expression()->keyword('REFERENCES'))
-                ->push($this->expression()->identifier($fk['referenced_table']))
-                ->push(
-                    $this->expression()
-                        ->push($this->expression()->identifier($fk['referenced_column']))
-                        ->wrap('(', ')')
-                );
+            $fkExpr = $this->expression(
+                $this->expression()->keyword('FOREIGN'),
+                $this->expression()->keyword('KEY'),
+                $this->expression($this->expression()->identifier($fk['column']))->wrap('(', ')'),
+                $this->expression()->keyword('REFERENCES'),
+                $this->expression()->identifier($fk['referenced_table']),
+                $this->expression($this->expression()->identifier($fk['referenced_column']))->wrap('(', ')')
+            );
             
             if (!empty($fk['options']['on_delete'])) {
-                $fkExpr->push($this->expression()->keyword('ON'))
-                    ->push($this->expression()->keyword('DELETE'))
-                    ->push($this->expression()->keyword($fk['options']['on_delete']));
+                $fkExpr(
+                    $this->expression()->keyword('ON'),
+                    $this->expression()->keyword('DELETE'),
+                    $this->expression()->keyword($fk['options']['on_delete'])
+                );
             }
             if (!empty($fk['options']['on_update'])) {
-                $fkExpr->push($this->expression()->keyword('ON'))
-                    ->push($this->expression()->keyword('UPDATE'))
-                    ->push($this->expression()->keyword($fk['options']['on_update']));
+                $fkExpr(
+                    $this->expression()->keyword('ON'),
+                    $this->expression()->keyword('UPDATE'),
+                    $this->expression()->keyword($fk['options']['on_update'])
+                );
             }
             
-            $columnDefs->push($fkExpr->join(' '));
+            $columnDefs($fkExpr->join(' '));
         }
         
         // Add indexes
@@ -177,24 +176,24 @@ class CreateTableBuilder extends SqlBuilder implements CreateTableBuilderInterfa
             $indexName = $index['name'] ?? 'idx_' . implode('_', $index['columns']);
             $indexCols = $this->expression()->join(', ');
             foreach ($index['columns'] as $col) {
-                $indexCols->push($this->expression()->identifier($col));
+                $indexCols($this->expression()->identifier($col));
             }
             
-            $columnDefs->push(
-                $this->expression()
-                    ->push($this->expression()->keyword('INDEX'))
-                    ->push($this->expression()->identifier($indexName))
-                    ->push($indexCols->wrap('(', ')'))
-                    ->join(' ')
+            $columnDefs(
+                $this->expression(
+                    $this->expression()->keyword('INDEX'),
+                    $this->expression()->identifier($indexName),
+                    $indexCols->wrap('(', ')')
+                )->join(' ')
             );
         }
         
-        $expr->push($columnDefs->wrap('(', ')'));
+        $expr($columnDefs->wrap('(', ')'));
         
         // Add table options
         if (!empty($this->tableOptions)) {
             foreach ($this->tableOptions as $key => $value) {
-                $expr->push($this->expression()->push($key . '=' . $value));
+                $expr($this->expression($key . '=' . $value));
             }
         }
         

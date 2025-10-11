@@ -87,116 +87,121 @@ class AlterTableBuilder extends SqlBuilder implements AlterTableBuilderInterface
 
     protected function getPipeline(): SqlExpressionInterface
     {
-        $expr = $this->expression();
-        
         // ALTER TABLE
-        $expr->push($this->expression()->keyword('ALTER'))
-            ->push($this->expression()->keyword('TABLE'))
-            ->push($this->expression()->identifier($this->table));
+        $expr = $this->expression(
+            $this->expression()->keyword('ALTER'),
+            $this->expression()->keyword('TABLE'),
+            $this->expression()->identifier($this->table)
+        );
 
         $actionExpressions = $this->expression()->join(', ');
         
         foreach ($this->actions as $action) {
             switch ($action['type']) {
                 case 'ADD COLUMN':
-                    $colDef = $this->expression()
-                        ->push($this->expression()->keyword('ADD'))
-                        ->push($this->expression()->keyword('COLUMN'))
-                        ->push($this->expression()->identifier($action['name']))
-                        ->push($action['definition']);
+                    $colDef = $this->expression(
+                        $this->expression()->keyword('ADD'),
+                        $this->expression()->keyword('COLUMN'),
+                        $this->expression()->identifier($action['name']),
+                        $action['definition']
+                    );
                     
                     foreach ($action['options'] as $key => $value) {
                         if (is_numeric($key)) {
-                            $colDef->push($value);
+                            $colDef($value);
                         } else {
-                            $colDef->push($key)->push($value);
+                            $colDef($key, $value);
                         }
                     }
-                    $actionExpressions->push($colDef->join(' '));
+                    $actionExpressions($colDef->join(' '));
                     break;
 
                 case 'MODIFY COLUMN':
-                    $colDef = $this->expression()
-                        ->push($this->expression()->keyword('MODIFY'))
-                        ->push($this->expression()->keyword('COLUMN'))
-                        ->push($this->expression()->identifier($action['name']))
-                        ->push($action['definition']);
+                    $colDef = $this->expression(
+                        $this->expression()->keyword('MODIFY'),
+                        $this->expression()->keyword('COLUMN'),
+                        $this->expression()->identifier($action['name']),
+                        $action['definition']
+                    );
                     
                     foreach ($action['options'] as $key => $value) {
                         if (is_numeric($key)) {
-                            $colDef->push($value);
+                            $colDef($value);
                         } else {
-                            $colDef->push($key)->push($value);
+                            $colDef($key, $value);
                         }
                     }
-                    $actionExpressions->push($colDef->join(' '));
+                    $actionExpressions($colDef->join(' '));
                     break;
 
                 case 'DROP COLUMN':
-                    $actionExpressions->push(
-                        $this->expression()
-                            ->push($this->expression()->keyword('DROP'))
-                            ->push($this->expression()->keyword('COLUMN'))
-                            ->push($this->expression()->identifier($action['name']))
-                            ->join(' ')
+                    $actionExpressions(
+                        $this->expression(
+                            $this->expression()->keyword('DROP'),
+                            $this->expression()->keyword('COLUMN'),
+                            $this->expression()->identifier($action['name'])
+                        )->join(' ')
                     );
                     break;
 
                 case 'RENAME COLUMN':
-                    $actionExpressions->push(
-                        $this->expression()
-                            ->push($this->expression()->keyword('RENAME'))
-                            ->push($this->expression()->keyword('COLUMN'))
-                            ->push($this->expression()->identifier($action['old_name']))
-                            ->push($this->expression()->keyword('TO'))
-                            ->push($this->expression()->identifier($action['new_name']))
-                            ->join(' ')
+                    $actionExpressions(
+                        $this->expression(
+                            $this->expression()->keyword('RENAME'),
+                            $this->expression()->keyword('COLUMN'),
+                            $this->expression()->identifier($action['old_name']),
+                            $this->expression()->keyword('TO'),
+                            $this->expression()->identifier($action['new_name'])
+                        )->join(' ')
                     );
                     break;
 
                 case 'ADD CONSTRAINT':
                     $cols = $this->expression()->join(', ');
                     foreach ($action['columns'] as $col) {
-                        $cols->push($this->expression()->identifier($col));
+                        $cols($this->expression()->identifier($col));
                     }
                     
-                    $constraintExpr = $this->expression()
-                        ->push($this->expression()->keyword('ADD'))
-                        ->push($this->expression()->keyword($action['constraint_type']))
-                        ->push($cols->wrap('(', ')'));
+                    $constraintExpr = $this->expression(
+                        $this->expression()->keyword('ADD'),
+                        $this->expression()->keyword($action['constraint_type']),
+                        $cols->wrap('(', ')')
+                    );
                     
                     if (!empty($action['options'])) {
                         foreach ($action['options'] as $key => $value) {
-                            $constraintExpr->push($this->expression()->keyword($key))
-                                ->push($value);
+                            $constraintExpr(
+                                $this->expression()->keyword($key),
+                                $value
+                            );
                         }
                     }
-                    $actionExpressions->push($constraintExpr->join(' '));
+                    $actionExpressions($constraintExpr->join(' '));
                     break;
 
                 case 'DROP CONSTRAINT':
-                    $actionExpressions->push(
-                        $this->expression()
-                            ->push($this->expression()->keyword('DROP'))
-                            ->push($this->expression()->keyword('CONSTRAINT'))
-                            ->push($this->expression()->identifier($action['name']))
-                            ->join(' ')
+                    $actionExpressions(
+                        $this->expression(
+                            $this->expression()->keyword('DROP'),
+                            $this->expression()->keyword('CONSTRAINT'),
+                            $this->expression()->identifier($action['name'])
+                        )->join(' ')
                     );
                     break;
 
                 case 'RENAME TO':
-                    $actionExpressions->push(
-                        $this->expression()
-                            ->push($this->expression()->keyword('RENAME'))
-                            ->push($this->expression()->keyword('TO'))
-                            ->push($this->expression()->identifier($action['new_name']))
-                            ->join(' ')
+                    $actionExpressions(
+                        $this->expression(
+                            $this->expression()->keyword('RENAME'),
+                            $this->expression()->keyword('TO'),
+                            $this->expression()->identifier($action['new_name'])
+                        )->join(' ')
                     );
                     break;
             }
         }
 
-        $expr->push($actionExpressions);
+        $expr($actionExpressions);
         
         return $expr->join(' ');
     }

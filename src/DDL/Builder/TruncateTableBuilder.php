@@ -16,10 +16,10 @@ class TruncateTableBuilder extends SqlBuilder implements TruncateTableBuilderInt
 
     protected function getPipeline(): SqlExpressionInterface
     {
-        return $this->expression()
-            ->push($this->expression()->keyword('TRUNCATE'))
-            ->push($this->expression()->keyword('TABLE'))
-            ->push($this->expression()->identifier($this->table))
-            ->join(' ');
+        return $this->expression(
+            $this->expression()->keyword('TRUNCATE'),
+            $this->expression()->keyword('TABLE'),
+            $this->expression()->identifier($this->table)
+        )->join(' ');
     }
 }
