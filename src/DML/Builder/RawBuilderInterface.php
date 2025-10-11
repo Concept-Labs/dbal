@@ -1,7 +1,7 @@
 <?php
 namespace Concept\DBAL\DML\Builder;
 
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 interface RawBuilderInterface 
     extends 

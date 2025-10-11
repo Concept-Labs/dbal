@@ -10,7 +10,7 @@ use Concept\DBAL\DML\Builder\Factory\InsertBuilderFactoryInterface;
 use Concept\DBAL\DML\Builder\Factory\UpdateBuilderFactoryInterface;
 use Concept\DBAL\DML\Builder\Factory\DeleteBuilderFactoryInterface;
 use Concept\DBAL\DML\Builder\Factory\RawBuilderFactoryInterface;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 use Concept\DBC\ConnectionInterface;
 
 beforeEach(function () {

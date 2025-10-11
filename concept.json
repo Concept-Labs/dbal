@@ -6,11 +6,11 @@
                     "Concept\\DBAL\\SqlManagerInterface": {
                         "class": "Concept\\DBAL\\SqlManager"
                     },
-                    "Concept\\DBAL\\DML\\Expression\\SqlExpressionInterface": {
-                        "class": "Concept\\DBAL\\DML\\Expression\\SqlExpression"
+                    "Concept\\DBAL\\Expression\\SqlExpressionInterface": {
+                        "class": "Concept\\DBAL\\Expression\\SqlExpression"
                     },
-                    "Concept\\DBAL\\DML\\Expression\\SqlExpressionFactoryInterface": {
-                        "class": "Concept\\DBAL\\DML\\Expression\\SqlExpressionFactory"
+                    "Concept\\DBAL\\Expression\\SqlExpressionFactoryInterface": {
+                        "class": "Concept\\DBAL\\Expression\\SqlExpressionFactory"
                     },
                     "Concept\\DBAL\\DML\\DmlManagerFactoryInterface": {
                         "class": "Concept\\DBAL\\DML\\DmlManagerFactory"

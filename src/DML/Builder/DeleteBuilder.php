@@ -3,8 +3,8 @@ namespace Concept\DBAL\DML\Builder;
 
 use Concept\DBAL\DML\Builder\Contract\Traits\DeleteTrait;
 use Concept\DBAL\DML\Builder\Contract\Traits\FromTrait;
-use Concept\DBAL\DML\Expression\KeywordEnum;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 
 class DeleteBuilder extends SqlBuilder implements DeleteBuilderInterface

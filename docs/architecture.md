@@ -226,17 +226,20 @@ class DmlManager {
 
 ### 4. Expression Layer
 
-**Purpose:** Build SQL expressions
+**Purpose:** Build SQL expressions with dialect support
 
 **Components:**
-- SqlExpression
+- SqlExpression (moved from DML to higher level)
 - SqlExpressionFactory
+- SQL Dialects (MySQL, PostgreSQL, SQLite)
 - Expression Functions (aggregate, string, date, etc.)
 
 **Responsibilities:**
 - Type-safe expression building
 - SQL function support
 - Complex expression composition
+- **Multi-dialect support**
+- Proper quoting and escaping
 
 ### 5. Connection Layer
 

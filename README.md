@@ -214,10 +214,24 @@ composer test:pest
 
 For detailed documentation, see the [docs](docs/) directory:
 
-- [DML Guide](docs/dml-guide.md)
-- [DDL Guide](docs/ddl-guide.md)
-- [Expression Guide](docs/expression-guide.md)
-- [Factory Pattern](docs/factory-pattern.md)
+- [DML Guide](docs/dml-guide.md) - Data Manipulation Language operations
+- [DDL Guide](docs/ddl-guide.md) - Data Definition Language operations
+- [SQL Expression Guide](docs/sql-expression-guide.md) - Expression system and SQL dialects
+- [Expression Guide](docs/expression-guide.md) - Advanced expression usage
+- [Factory Pattern](docs/factory-pattern.md) - Factory pattern implementation
+- [Architecture](docs/architecture.md) - System architecture
+
+### SqlExpression and Dialects
+
+The DBAL package uses the [SqlExpression](docs/sql-expression-guide.md) system for building SQL expressions. It supports multiple SQL dialects:
+
+- **MySQL** - MySQL/MariaDB dialect with backtick quoting
+- **PostgreSQL** - PostgreSQL dialect with double-quote quoting
+- **SQLite** - SQLite dialect
+
+See the [SQL Expression Guide](docs/sql-expression-guide.md) for detailed information on using expressions and dialects.
+
+The expression system is built on top of the [concept-labs/expression](https://github.com/Concept-Labs/expression) library.
 
 ## Contributing
 

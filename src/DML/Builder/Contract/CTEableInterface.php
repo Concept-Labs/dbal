@@ -1,7 +1,7 @@
 <?php
 namespace Concept\DBAL\DML\Builder\Contract;
 
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 interface CTEableInterface
 {

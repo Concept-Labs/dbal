@@ -5,7 +5,7 @@ use Concept\DBAL\DDL\Builder\CreateTableBuilderInterface;
 use Concept\DBAL\DDL\Builder\AlterTableBuilderInterface;
 use Concept\DBAL\DDL\Builder\DropTableBuilderInterface;
 use Concept\DBAL\DDL\Builder\TruncateTableBuilderInterface;
-use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareInterface;
+use Concept\DBAL\Expression\Contract\SqlExpressionAwareInterface;
 
 interface DdlManagerInterface 
    extends 

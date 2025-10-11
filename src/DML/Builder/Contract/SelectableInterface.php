@@ -2,7 +2,7 @@
 namespace Concept\DBAL\DML\Builder\Contract;
 
 use Concept\DBAL\DML\Builder\SqlBuilderInterface;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 use Stringable;
 
 interface SelectableInterface

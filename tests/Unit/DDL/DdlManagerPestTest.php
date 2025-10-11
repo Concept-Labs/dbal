@@ -9,7 +9,7 @@ use Concept\DBAL\DDL\Builder\Factory\CreateTableBuilderFactoryInterface;
 use Concept\DBAL\DDL\Builder\Factory\AlterTableBuilderFactoryInterface;
 use Concept\DBAL\DDL\Builder\Factory\DropTableBuilderFactoryInterface;
 use Concept\DBAL\DDL\Builder\Factory\TruncateTableBuilderFactoryInterface;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 use Concept\DBC\ConnectionInterface;
 
 beforeEach(function () {

@@ -1,8 +1,8 @@
 <?php
-namespace Concept\DBAL\DML\Expression\Contract;
+namespace Concept\DBAL\Expression\Contract;
 
-use Concept\DBAL\DML\Expression\KeywordEnum;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\KeywordEnum;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 
 trait AggregateFunctionsTrait
 {

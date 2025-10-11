@@ -1,7 +1,7 @@
 <?php
 namespace Concept\DBAL\DML;
 
-use Concept\DBAL\DML\Expression\Contract\SqlExpressionAwareTrait;
+use Concept\DBAL\Expression\Contract\SqlExpressionAwareTrait;
 use Concept\DBAL\DML\Builder\Factory\DeleteBuilderFactoryInterface;
 use Concept\DBAL\DML\Builder\Factory\InsertBuilderFactoryInterface;
 use Concept\DBAL\DML\Builder\Factory\RawBuilderFactoryInterface;
@@ -13,7 +13,7 @@ use Concept\DBAL\DML\Builder\SelectBuilderInterface;
 use Concept\DBAL\DML\Builder\SqlBuilderInterface;
 use Concept\DBAL\DML\Builder\UpdateBuilderInterface;
 use Concept\DBAL\DML\Builder\DeleteBuilderInterface;
-use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+use Concept\DBAL\Expression\SqlExpressionInterface;
 use Concept\DBAL\Exception\RuntimeException;
 use Concept\DBC\ConnectionInterface;
 use Concept\Singularity\Contract\Lifecycle\SharedInterface;
