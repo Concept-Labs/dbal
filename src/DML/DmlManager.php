@@ -36,7 +36,7 @@ class DmlManager
     private ?DeleteBuilderInterface $deleteBuilderPrototype = null;
 
     public function __construct(
-        private ConnectionInterface $connection,
+        //private ConnectionInterface $connection,
         private SqlExpressionInterface $sqlExpressionPrototype,
         private RawBuilderFactoryInterface $rawBuilderFactory,
         private SelectBuilderFactoryInterface $selectBuilderFactory,
