@@ -43,6 +43,10 @@ composer require concept-labs/dbal
 
 ### With Dependency Injection (Recommended)
 
+DBAL is designed from the ground up for dependency injection with [Singularity Container](https://github.com/Concept-Labs/singularity), leveraging the powerful [concept-labs/expression](https://github.com/Concept-Labs/expression) system for building complex SQL expressions.
+
+#### Basic DI Usage
+
 ```php
 use Concept\DBAL\DbalManagerInterface;
 
@@ -55,7 +59,7 @@ class UserRepository {
     public function findActiveUsers(): array {
         // Access DML operations through dbal manager
         return $this->dbal->dml()
-            ->select('id', 'name', 'email')
+            ->select('id', 'name', 'email', 'created_at')
             ->from('users')
             ->where($this->dbal->dml()->expr()->condition('status', '=', 'active'))
             ->orderBy('created_at', 'DESC')
@@ -64,6 +68,312 @@ class UserRepository {
     }
 }
 ```
+
+#### Advanced Expression Building
+
+Build complex conditions with the expression system:
+
+```php
+class UserRepository {
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    /**
+     * Advanced filtering with grouped conditions
+     */
+    public function findUsers(array $filters): array {
+        $expr = $this->dbal->dml()->expr();
+        
+        // Build complex conditions: (age >= 18 AND status = 'active') OR role = 'admin'
+        $condition = $expr->group(
+            $expr->group(
+                $expr->condition('age', '>=', 18),
+                'AND',
+                $expr->condition('status', '=', 'active')
+            ),
+            'OR',
+            $expr->condition('role', '=', 'admin')
+        );
+        
+        return $this->dbal->dml()
+            ->select('id', 'name', 'email', 'role', 'age')
+            ->from('users')
+            ->where($condition)
+            ->orderBy('name')
+            ->execute();
+    }
+    
+    /**
+     * Dynamic search with multiple criteria
+     */
+    public function searchUsers(?string $query = null, ?array $roles = null, ?int $minAge = null): array {
+        $expr = $this->dbal->dml()->expr();
+        $select = $this->dbal->dml()
+            ->select('*')
+            ->from('users');
+        
+        // Text search across multiple columns
+        if ($query) {
+            $pattern = "%{$query}%";
+            $searchCondition = $expr->group(
+                $expr->like('name', $pattern),
+                'OR',
+                $expr->group(
+                    $expr->like('email', $pattern),
+                    'OR',
+                    $expr->like('bio', $pattern)
+                )
+            );
+            $select->where($searchCondition);
+        }
+        
+        // Filter by roles using IN clause
+        if ($roles) {
+            $select->where($expr->in('role', $roles));
+        }
+        
+        // Age filter
+        if ($minAge) {
+            $select->where($expr->condition('age', '>=', $minAge));
+        }
+        
+        return $select->execute();
+    }
+}
+```
+
+#### Expression Composition & Reusability
+
+Create reusable expression components for consistent logic:
+
+```php
+use Concept\DBAL\DML\Expression\SqlExpressionInterface;
+
+class UserExpressions {
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    /**
+     * Reusable expression: active users
+     */
+    public function isActive(): SqlExpressionInterface {
+        return $this->dbal->dml()->expr()->condition('status', '=', 'active');
+    }
+    
+    /**
+     * Reusable expression: adult users
+     */
+    public function isAdult(): SqlExpressionInterface {
+        return $this->dbal->dml()->expr()->condition('age', '>=', 18);
+    }
+    
+    /**
+     * Reusable expression: verified email
+     */
+    public function isVerified(): SqlExpressionInterface {
+        return $this->dbal->dml()->expr()->condition('email_verified', '=', true);
+    }
+    
+    /**
+     * Compose expressions: active adult users
+     */
+    public function isActiveAdult(): SqlExpressionInterface {
+        $expr = $this->dbal->dml()->expr();
+        return $expr->group($this->isActive(), 'AND', $this->isAdult());
+    }
+    
+    /**
+     * Soft delete scope
+     */
+    public function notDeleted(): SqlExpressionInterface {
+        return $this->dbal->dml()->expr()->condition('deleted_at', 'IS', null);
+    }
+}
+
+class UserRepository {
+    public function __construct(
+        private DbalManagerInterface $dbal,
+        private UserExpressions $userExpr
+    ) {}
+    
+    public function getActiveAdultUsers(): array {
+        return $this->dbal->dml()
+            ->select('*')
+            ->from('users')
+            ->where($this->userExpr->isActiveAdult())
+            ->where($this->userExpr->notDeleted())
+            ->execute();
+    }
+}
+```
+
+#### Aggregate Functions & Analytics
+
+Leverage SQL aggregate functions through expressions:
+
+```php
+class AnalyticsRepository {
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    /**
+     * User statistics with aggregates
+     */
+    public function getUserStats(): array {
+        $expr = $this->dbal->dml()->expr();
+        
+        return $this->dbal->dml()
+            ->select(
+                'status',
+                $expr->count('*', 'total_users'),
+                $expr->avg('age', 'average_age'),
+                $expr->min('created_at', 'first_signup'),
+                $expr->max('created_at', 'last_signup')
+            )
+            ->from('users')
+            ->where($expr->condition('deleted_at', 'IS', null))
+            ->groupBy('status')
+            ->execute();
+    }
+    
+    /**
+     * Revenue analysis with CASE expressions
+     */
+    public function getRevenueByTier(): array {
+        $expr = $this->dbal->dml()->expr();
+        
+        // Categorize orders by value using CASE
+        $tierCase = $expr->case(
+            $expr->condition('total', '>=', 1000),
+            'Premium',
+            $expr->case(
+                $expr->condition('total', '>=', 100),
+                'Standard',
+                'Basic'
+            )
+        );
+        
+        return $this->dbal->dml()
+            ->select(
+                $expr->alias('tier', $tierCase),
+                $expr->count('*', 'order_count'),
+                $expr->sum('total', 'total_revenue'),
+                $expr->avg('total', 'avg_order_value')
+            )
+            ->from('orders')
+            ->where($expr->condition('status', '=', 'completed'))
+            ->groupBy('tier')
+            ->orderBy('total_revenue', 'DESC')
+            ->execute();
+    }
+}
+```
+
+#### Dynamic Filter Builder Pattern
+
+Build filters dynamically based on user input:
+
+```php
+class FilterBuilder {
+    private array $conditions = [];
+    
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    /**
+     * Add a simple condition
+     */
+    public function addCondition(string $column, string $operator, mixed $value): self {
+        $this->conditions[] = $this->dbal->dml()->expr()->condition($column, $operator, $value);
+        return $this;
+    }
+    
+    /**
+     * Add an IN condition
+     */
+    public function addIn(string $column, array $values): self {
+        if (!empty($values)) {
+            $this->conditions[] = $this->dbal->dml()->expr()->in($column, $values);
+        }
+        return $this;
+    }
+    
+    /**
+     * Add a LIKE condition
+     */
+    public function addLike(string $column, string $pattern): self {
+        $this->conditions[] = $this->dbal->dml()->expr()->like($column, $pattern);
+        return $this;
+    }
+    
+    /**
+     * Add a date range condition
+     */
+    public function addDateRange(string $column, ?string $from = null, ?string $to = null): self {
+        $expr = $this->dbal->dml()->expr();
+        
+        if ($from) {
+            $this->conditions[] = $expr->condition($column, '>=', $from);
+        }
+        if ($to) {
+            $this->conditions[] = $expr->condition($column, '<=', $to);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Build final expression with AND/OR logic
+     */
+    public function build(string $logic = 'AND'): ?SqlExpressionInterface {
+        if (empty($this->conditions)) {
+            return null;
+        }
+        
+        $expr = $this->dbal->dml()->expr();
+        $result = array_shift($this->conditions);
+        
+        foreach ($this->conditions as $condition) {
+            $result = $expr->group($result, $logic, $condition);
+        }
+        
+        return $result;
+    }
+}
+
+class ProductRepository {
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    public function search(array $params): array {
+        $filter = new FilterBuilder($this->dbal);
+        
+        // Build dynamic filters
+        if (isset($params['category'])) {
+            $filter->addCondition('category_id', '=', $params['category']);
+        }
+        if (isset($params['min_price'])) {
+            $filter->addCondition('price', '>=', $params['min_price']);
+        }
+        if (isset($params['max_price'])) {
+            $filter->addCondition('price', '<=', $params['max_price']);
+        }
+        if (isset($params['tags'])) {
+            $filter->addIn('tag_id', $params['tags']);
+        }
+        if (isset($params['search'])) {
+            $filter->addLike('name', "%{$params['search']}%");
+        }
+        
+        $query = $this->dbal->dml()
+            ->select('*')
+            ->from('products');
+        
+        if ($filterExpr = $filter->build()) {
+            $query->where($filterExpr);
+        }
+        
+        return $query->execute();
+    }
+}
+```
+
+See **[Dependency Injection Guide](docs/dependency-injection.md)** for complete DI setup, **[SQL Expressions](docs/expressions.md)** for expression system details, and **[Examples](docs/examples.md)** for more real-world patterns.
 
 ### Standalone Usage
 
