@@ -2,18 +2,45 @@
 
 ## Overview
 
-Concept DBAL (Database Abstraction Layer) is a modern, fluent PHP library designed to simplify database operations through an intuitive query builder interface. It provides a clean, type-safe abstraction over SQL query construction, making database interactions more maintainable and less error-prone.
+Concept DBAL (Database Abstraction Layer) is a **low-level, foundational tool** for building database abstractions in PHP 8.2+. It provides type-safe SQL query construction primitives that serve as building blocks for higher-level patterns.
 
 ## What is DBAL?
 
-DBAL stands for Database Abstraction Layer. Unlike a full ORM (Object-Relational Mapper), a DBAL focuses on:
+DBAL stands for Database Abstraction Layer. **Concept DBAL is NOT a high-level solution** - it's a tool for building them:
 
-- **Query Building** - Fluent, chainable API for constructing SQL queries
-- **Abstraction** - Hide database-specific syntax differences
-- **Type Safety** - Leverage PHP's type system for safer code
-- **Flexibility** - Give you control over SQL while reducing boilerplate
+### What DBAL Is NOT
 
-Concept DBAL is not an ORM. It doesn't map database tables to objects or manage entity relationships. Instead, it provides a powerful, flexible layer for building and executing SQL queries programmatically.
+- ❌ **Not an ORM** - Doesn't map tables to objects
+- ❌ **Not ActiveRecord** - Doesn't provide model classes
+- ❌ **Not a complete data layer** - Doesn't include repositories, collections, or entities
+- ❌ **Not high-level** - Doesn't abstract away SQL
+
+### What DBAL IS
+
+- ✅ **Low-level query builder** - Build SQL queries programmatically
+- ✅ **Foundation for abstractions** - Use it to build ORMs, ActiveRecord, Repositories, Collections, etc.
+- ✅ **Type-safe SQL construction** - Leverage PHP 8.2+ type system
+- ✅ **Building blocks** - Primitives for your custom data layer
+
+Think of DBAL as **LEGO blocks** - you use them to build whatever structure you need (ORM, ActiveRecord, Repository pattern, etc.).
+
+## DBAL as a Foundation
+
+```
+┌─────────────────────────────────────────────┐
+│  Your Layer: ORM, ActiveRecord, Repository  │
+│      Collections, Specifications, etc.      │
+│         ← YOU BUILD THIS                    │
+├─────────────────────────────────────────────┤
+│        Concept DBAL (Low-Level Tool)        │
+│      Query Builder + SQL Expression         │
+│         ← WE PROVIDE THIS                   │
+├─────────────────────────────────────────────┤
+│         Database Connection (PDO)           │
+└─────────────────────────────────────────────┘
+```
+
+Concept DBAL provides the **primitives** - you build the **patterns** you need on top.
 
 ## Core Concepts
 
@@ -114,17 +141,63 @@ $query = $dml->select('id', 'name')
 
 Concept DBAL is ideal for:
 
-### ✅ Good Fit
-- **Custom Query Building** - When you need fine control over SQL
-- **Legacy Database Integration** - Working with existing database schemas
-- **Performance-Critical Operations** - Optimized queries without ORM overhead
-- **Reporting and Analytics** - Complex queries with joins and aggregations
-- **Microservices** - Lightweight database layer for services
+### ✅ Building Custom Abstractions
+- Creating your own ORM tailored to your needs
+- Implementing ActiveRecord pattern
+- Building Repository layers
+- Creating Collection classes
+- Implementing any database pattern you need
+
+### ✅ Foundation for Data Layers
+- Base for custom query builders
+- Foundation for CQRS implementations
+- Building blocks for event sourcing
+- Primitives for any data access pattern
+
+### ✅ Low-Level Database Operations
+- When you need full SQL control
+- Performance-critical queries
+- Complex SQL that ORMs struggle with
+- Direct database manipulation
 
 ### ❌ Not Ideal For
-- **Simple CRUD Apps** - Full ORMs might be more convenient
-- **Domain-Driven Design** - When you need rich domain models
-- **Automatic Migrations** - No schema management built-in
+- **Quick prototyping** - Use a full ORM instead (Doctrine, Eloquent)
+- **Simple CRUD** - Use ActiveRecord implementations
+- **When you need models** - Build them on top or use an ORM
+- **High-level abstractions** - Build them yourself using DBAL as foundation
+
+## Real-World Usage
+
+### As a Foundation
+
+```php
+// You build this layer on top of DBAL
+class UserRepository {
+    public function __construct(private DbalManagerInterface $dbal) {}
+    
+    public function findActive(): Collection {
+        // Use DBAL primitives
+        $results = $this->dbal->dml()
+            ->select('*')
+            ->from('users')
+            ->where($this->dbal->dml()->expr()->condition('status', '=', 'active'))
+            ->execute();
+        
+        // Your collection implementation
+        return new Collection($results);
+    }
+}
+```
+
+### Building Patterns
+
+See **[Building on DBAL](building-on-dbal.md)** for complete examples of:
+- ActiveRecord implementation
+- ORM implementation  
+- Repository pattern
+- Collection classes
+- Specification pattern
+- And more...
 
 ## Key Benefits
 
