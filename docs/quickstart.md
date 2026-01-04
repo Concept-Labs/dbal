@@ -309,10 +309,33 @@ $query = $dml->select('*')
 $sql = $query->getSql();
 echo $sql;  // Outputs: SELECT * FROM users WHERE status = 'active'
 
-// Get with parameters
-$params = $query->getParams();
+// Get bound parameters
+$params = $query->getBindings();
 print_r($params);
 ```
+
+## Using Named Placeholders
+
+For advanced scenarios or when migrating from other libraries, you can use named placeholders with manual parameter binding:
+
+```php
+// Query with named placeholders
+$users = $dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('status = :status AND age >= :min_age'))
+    ->bind([
+        'status' => 'active',
+        'min_age' => 18
+    ])
+    ->execute();
+```
+
+This is useful when:
+- Working with complex raw SQL
+- Migrating from Doctrine DBAL or PDO
+- You need database-specific functions
+
+For standard queries, prefer the expression builder (`condition()`, `in()`, `like()`) as it provides better type safety and abstraction.
 
 ## Practical Example: User Repository
 

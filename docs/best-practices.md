@@ -137,18 +137,41 @@ $revenue = $dml->select('DATE(order_date) as date', $dml->expr()->sum('total', '
 Never concatenate user input into queries:
 
 ```php
-// ✅ Good - Parameter binding
+// ✅ Good - Using expression builder (recommended)
 $users = $dml->select('*')
     ->from('users')
     ->where($dml->expr()->condition('email', '=', $email))
     ->execute();
 
+// ✅ Good - Using named placeholders with bind()
+$users = $dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('email = :email'))
+    ->bind(['email' => $email])
+    ->execute();
+
 // ❌ Bad - SQL injection risk
 $users = $dml->select('*')
     ->from('users')
-    ->where("email = '$email'")
+    ->where($dml->expr()->raw("email = '$email'"))  // NEVER DO THIS!
     ->execute();
+
+// ❌ Bad - Direct string concatenation
+$sql = "SELECT * FROM users WHERE email = '$email'";  // NEVER DO THIS!
 ```
+
+**When to Use Named Placeholders:**
+
+Named placeholders with `bind()` are useful when:
+- Migrating from Doctrine DBAL or PDO code
+- Working with complex raw SQL that can't be expressed with the builder
+- You need database-specific functions or syntax
+
+However, the expression builder is preferred for standard queries as it provides:
+- Better type safety
+- Database abstraction
+- More readable code
+- Automatic parameter handling
 
 ### 6. Use Type Hints
 
@@ -491,7 +514,7 @@ public function testBuildSearchQuery(): void
     $query = $this->repository->buildSearchQuery('test');
     
     $sql = $query->getSql();
-    $params = $query->getParams();
+    $params = $query->getBindings();
     
     $this->assertStringContainsString('WHERE', $sql);
     $this->assertStringContainsString('LIKE', $sql);

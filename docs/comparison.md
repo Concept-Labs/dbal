@@ -517,7 +517,7 @@ $results = DB::table('active_users')
 ### From Doctrine DBAL to Concept DBAL
 
 ```php
-// Doctrine DBAL
+// Doctrine DBAL - Using expression builder
 $qb = $connection->createQueryBuilder();
 $users = $qb->select('*')
     ->from('users')
@@ -525,9 +525,44 @@ $users = $qb->select('*')
     ->setParameter('status', 'active')
     ->fetchAllAssociative();
 
-// Concept DBAL
+// Concept DBAL - Using expression builder (recommended)
 $users = $dml->select('*')
     ->from('users')
+    ->where($dml->expr()->condition('status', '=', 'active'))
+    ->execute();
+
+// Concept DBAL - Using named placeholders (for migration compatibility)
+$users = $dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('status = :status'))
+    ->bind(['status' => 'active'])
+    ->execute();
+```
+
+**Named Placeholders Migration:**
+
+Doctrine DBAL's `setParameter()` pattern can be directly translated to Concept DBAL's `bind()` method:
+
+```php
+// Doctrine DBAL
+$qb->where('age > :min_age AND status = :status')
+   ->setParameter('min_age', 18)
+   ->setParameter('status', 'active');
+
+// Concept DBAL - Direct equivalent
+$dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('age > :min_age AND status = :status'))
+    ->bind([
+        'min_age' => 18,
+        'status' => 'active'
+    ])
+    ->execute();
+
+// Concept DBAL - Recommended (using expression builder)
+$dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->condition('age', '>', 18))
     ->where($dml->expr()->condition('status', '=', 'active'))
     ->execute();
 ```

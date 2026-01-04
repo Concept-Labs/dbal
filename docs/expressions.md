@@ -466,7 +466,60 @@ $users = $dml->select(
     ->execute();
 ```
 
-**⚠️ Warning:** Raw SQL bypasses safety features. Only use when necessary and never with user input.
+### Raw SQL with Named Placeholders
+
+When using raw SQL, you can use named placeholders (`:placeholder_name`) and bind values to them for SQL injection prevention:
+
+```php
+// Simple condition with placeholder
+$users = $dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('status = :status'))
+    ->bind(['status' => 'active'])
+    ->execute();
+
+// Multiple placeholders
+$products = $dml->select('*')
+    ->from('products')
+    ->where($dml->expr()->raw('price BETWEEN :min AND :max'))
+    ->where($dml->expr()->raw('category = :category'))
+    ->bind([
+        'min' => 10.00,
+        'max' => 100.00,
+        'category' => 'electronics'
+    ])
+    ->execute();
+
+// Complex raw SQL with placeholders
+$results = $dml->select('*')
+    ->from('orders')
+    ->where($dml->expr()->raw(
+        'created_at >= :start_date AND ' .
+        'status IN (:status1, :status2) AND ' .
+        'total >= :min_total'
+    ))
+    ->bind([
+        'start_date' => '2024-01-01',
+        'status1' => 'completed',
+        'status2' => 'shipped',
+        'min_total' => 50.00
+    ])
+    ->execute();
+```
+
+**Placeholder Naming Rules:**
+- Must start with a colon `:`
+- Followed by letters, numbers, or underscores
+- Case-sensitive
+- Examples: `:status`, `:userId`, `:max_price`, `:startDate`
+
+**Benefits of Named Placeholders:**
+- ✅ **SQL Injection Prevention:** Parameters are safely bound
+- ✅ **Readability:** Clear parameter names in SQL
+- ✅ **Reusability:** Same placeholder can be used multiple times
+- ✅ **Flexibility:** Can be used in any part of raw SQL
+
+**⚠️ Warning:** Raw SQL bypasses safety features. Only use when necessary and never concatenate user input directly. Always use parameter binding with placeholders.
 
 ## Advanced Patterns
 
