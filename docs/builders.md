@@ -16,6 +16,8 @@ This comprehensive guide covers all query builders in Concept DBAL: SELECT, INSE
 
 Each query type has a dedicated builder class that provides a fluent interface for constructing SQL queries. All builders share common traits and patterns while exposing methods specific to their query type.
 
+> **Note:** Concept DBAL's builders support passing builder objects as parameters, enabling powerful subquery and derived table patterns. See how this compares to other libraries in our **[Comparison Guide](comparison.md)**.
+
 ### Common Pattern
 
 ```php
@@ -151,40 +153,40 @@ $users = $dml->select('*')
 ### JOINs
 
 ```php
-// INNER JOIN
-$results = $dml->select('users.*', 'profiles.bio')
-    ->from('users')
-    ->join('profiles', $dml->expr()->condition('users.id', '=', 'profiles.user_id'))
+// INNER JOIN - table name with alias
+$results = $dml->select('u.*', 'p.bio')
+    ->from(['u' => 'users'])
+    ->join('profiles', 'p', $dml->expr()->condition('u.id', '=', 'p.user_id'))
     ->execute();
 
 // LEFT JOIN
-$results = $dml->select('users.*', 'orders.total')
-    ->from('users')
-    ->leftJoin('orders', $dml->expr()->condition('users.id', '=', 'orders.user_id'))
+$results = $dml->select('u.*', 'o.total')
+    ->from(['u' => 'users'])
+    ->leftJoin('orders', 'o', $dml->expr()->condition('u.id', '=', 'o.user_id'))
     ->execute();
 
 // RIGHT JOIN
 $results = $dml->select('*')
-    ->from('users')
-    ->rightJoin('profiles', $dml->expr()->condition('users.id', '=', 'profiles.user_id'))
+    ->from(['u' => 'users'])
+    ->rightJoin('profiles', 'p', $dml->expr()->condition('u.id', '=', 'p.user_id'))
     ->execute();
 
-// Multiple JOINs
-$results = $dml->select('users.name', 'orders.total', 'products.name as product')
-    ->from('users')
-    ->join('orders', $dml->expr()->condition('users.id', '=', 'orders.user_id'))
-    ->join('order_items', $dml->expr()->condition('orders.id', '=', 'order_items.order_id'))
-    ->join('products', $dml->expr()->condition('order_items.product_id', '=', 'products.id'))
+// Multiple JOINs with aliases
+$results = $dml->select('u.name', 'o.total', 'p.name as product')
+    ->from(['u' => 'users'])
+    ->join('orders', 'o', $dml->expr()->condition('u.id', '=', 'o.user_id'))
+    ->join('order_items', 'oi', $dml->expr()->condition('o.id', '=', 'oi.order_id'))
+    ->join('products', 'p', $dml->expr()->condition('oi.product_id', '=', 'p.id'))
     ->execute();
 
 // JOIN with multiple conditions
 $results = $dml->select('*')
-    ->from('users')
-    ->join('orders', 
+    ->from(['u' => 'users'])
+    ->join('orders', 'o',
         $dml->expr()->group(
-            $dml->expr()->condition('users.id', '=', 'orders.user_id'),
+            $dml->expr()->condition('u.id', '=', 'o.user_id'),
             'AND',
-            $dml->expr()->condition('orders.status', '=', 'completed')
+            $dml->expr()->condition('o.status', '=', 'completed')
         )
     )
     ->execute();
@@ -1030,6 +1032,8 @@ $users = $dml->select('*')
 6. **Index Aware** - Be mindful of database indexes when writing WHERE clauses
 7. **Limit Results** - Always use LIMIT for potentially large result sets
 8. **Profile Queries** - Use EXPLAIN to understand query performance
+9. **Leverage Builder Objects** - Pass builders as parameters for complex subqueries
+10. **Use CTEs for Readability** - Break complex queries into named CTEs
 
 ## Next Steps
 
@@ -1037,3 +1041,4 @@ $users = $dml->select('*')
 - **[Best Practices](best-practices.md)** - Learn recommended patterns
 - **[Examples](examples.md)** - See real-world query examples
 - **[API Reference](api-reference.md)** - Complete method documentation
+- **[Comparison](comparison.md)** - Compare Concept DBAL with other popular libraries (Doctrine DBAL, Laravel, PDO, Medoo)
