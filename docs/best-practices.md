@@ -514,7 +514,7 @@ public function testBuildSearchQuery(): void
     $query = $this->repository->buildSearchQuery('test');
     
     $sql = $query->getSql();
-    $params = $query->getParams();
+    $params = $query->getBindings();
     
     $this->assertStringContainsString('WHERE', $sql);
     $this->assertStringContainsString('LIKE', $sql);
