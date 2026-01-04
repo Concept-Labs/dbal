@@ -247,8 +247,159 @@ $users = $database->select('users',
 | **JOINs** | ✅ Full | ✅ Full | ✅ Full | ❌ Manual | ✅ Limited |
 | **Subqueries** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Manual | ⚠️ Limited |
 | **Unions** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Manual | ❌ No |
-| **CTEs** | 🚧 Planned | ✅ Yes | ✅ Yes | ❌ Manual | ❌ No |
+| **CTEs (WITH)** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Manual | ❌ No |
 | **Raw SQL** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Native | ✅ Yes |
+| **Builder as Parameter** | ✅ Native | ⚠️ Limited | ✅ Native | ❌ No | ❌ No |
+| **Derived Tables** | ✅ Yes | ⚠️ Complex | ✅ Yes | ❌ Manual | ❌ No |
+| **Scalar Subqueries** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ Manual | ❌ No |
+
+### Builder Object Patterns
+
+Concept DBAL's unique feature is the ability to pass builder objects as parameters throughout the API:
+
+```php
+// Concept DBAL - Builders as Parameters
+$subquery = $dml->select('user_id')
+    ->from('orders')
+    ->where($dml->expr()->condition('total', '>', 1000));
+
+// Use builder directly in whereIn
+$users = $dml->select('*')
+    ->from('users')
+    ->whereIn('id', $subquery)
+    ->execute();
+
+// Use builder in FROM (derived table)
+$result = $dml->select('*')
+    ->from(['orders_sub' => $subquery])
+    ->execute();
+
+// Use builder in JOIN
+$users = $dml->select('*')
+    ->from('users')
+    ->join(['o' => $subquery], 'o', $condition)
+    ->execute();
+```
+
+**Doctrine DBAL** requires more verbose syntax:
+
+```php
+// Doctrine DBAL - Subqueries
+$subQuery = $connection->createQueryBuilder()
+    ->select('user_id')
+    ->from('orders')
+    ->where('total > 1000');
+
+$qb = $connection->createQueryBuilder();
+$qb->select('*')
+    ->from('users', 'u')
+    ->where(
+        $qb->expr()->in('u.id', 
+            '(' . $subQuery->getSQL() . ')'  // Must convert to SQL string
+        )
+    )
+    ->setParameters($subQuery->getParameters());  // Manual parameter merging
+```
+
+**Laravel** supports closures for subqueries:
+
+```php
+// Laravel - Subqueries with Closures
+$users = DB::table('users')
+    ->whereIn('id', function($query) {
+        $query->select('user_id')
+              ->from('orders')
+              ->where('total', '>', 1000);
+    })
+    ->get();
+
+// Or with query builder objects
+$subquery = DB::table('orders')
+    ->select('user_id')
+    ->where('total', '>', 1000);
+
+$users = DB::table('users')
+    ->whereInSub('id', $subquery)
+    ->get();
+```
+
+### Alias Support Comparison
+
+**Concept DBAL** provides consistent alias syntax across all methods:
+
+```php
+// Aliases with array syntax - works everywhere
+$orderStats = $dml->select('user_id', ['total' => 'SUM(amount)'])
+    ->from('orders')
+    ->groupBy('user_id');
+
+$results = $dml->select(['name' => 'u.name'], ['total' => 'os.total'])
+    ->from(['u' => 'users'])
+    ->join(['os' => $orderStats], 'os', $condition)  // Builder with alias
+    ->execute();
+```
+
+**Doctrine DBAL**:
+
+```php
+// Aliases require different syntax
+$qb = $connection->createQueryBuilder();
+$qb->select('u.name', 'os.total')
+    ->from('users', 'u')
+    ->leftJoin('u', '(' . $subQuery->getSQL() . ')', 'os', 'u.id = os.user_id');
+// Derived table joins are complex
+```
+
+**Laravel**:
+
+```php
+// Aliases with as() or array syntax
+$results = DB::table('users as u')
+    ->select('u.name as name', 'os.total as total')
+    ->joinSub($orderStats, 'os', function($join) {
+        $join->on('u.id', '=', 'os.user_id');
+    })
+    ->get();
+```
+
+### Common Table Expressions (CTEs)
+
+**Concept DBAL**:
+
+```php
+// Clean CTE syntax with builder objects
+$activeUsers = $dml->select('id', 'name')
+    ->from('users')
+    ->where($dml->expr()->condition('status', '=', 'active'));
+
+$results = $dml->select('*')
+    ->with('active_users', $activeUsers)  // Pass builder directly
+    ->from('active_users')
+    ->execute();
+```
+
+**Doctrine DBAL**:
+
+```php
+// Manual CTE construction (complex)
+$qb = $connection->createQueryBuilder();
+$sql = 'WITH active_users AS (' . $subQuery->getSQL() . ') '
+     . 'SELECT * FROM active_users';
+$stmt = $connection->executeQuery($sql, $subQuery->getParameters());
+```
+
+**Laravel**:
+
+```php
+// CTE support via withExpression (Laravel 8.5+)
+$activeUsers = DB::table('users')
+    ->select('id', 'name')
+    ->where('status', 'active');
+
+$results = DB::table('active_users')
+    ->withExpression('active_users', $activeUsers)
+    ->get();
+```
 
 ### Type Safety & Features
 
