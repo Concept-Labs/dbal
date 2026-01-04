@@ -448,11 +448,67 @@ Get the SQL string without executing.
 $sql = $query->getSql();
 ```
 
-### getParams(): array
-Get bound parameters.
+### getBindings(): array
+Get all bound parameters.
 
 ```php
-$params = $query->getParams();
+$params = $query->getBindings();
+```
+
+### bind(array $bindings): static
+Bind multiple values to named placeholders.
+
+```php
+$query->bind([
+    'status' => 'active',
+    'min_age' => 18
+]);
+```
+
+### setBinding(string $key, mixed $value): static
+Set a single binding value.
+
+```php
+$query->setBinding('status', 'active');
+```
+
+### getBinding(string $key): mixed
+Get a specific binding value.
+
+```php
+$value = $query->getBinding('status');
+```
+
+### hasBinding(string $key): bool
+Check if a binding exists.
+
+```php
+if ($query->hasBinding('status')) {
+    // Binding exists
+}
+```
+
+### hasBindings(): bool
+Check if any bindings exist.
+
+```php
+if ($query->hasBindings()) {
+    // Has bindings
+}
+```
+
+### removeBinding(string $key): static
+Remove a specific binding.
+
+```php
+$query->removeBinding('status');
+```
+
+### clearBindings(): static
+Clear all bindings.
+
+```php
+$query->clearBindings();
 ```
 
 ### reset(): static

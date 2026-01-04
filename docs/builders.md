@@ -738,9 +738,123 @@ $sql = $query->getSql();
 echo $sql;
 
 // Get bound parameters
-$params = $query->getParams();
+$params = $query->getBindings();
 print_r($params);
 ```
+
+### Manual Parameter Binding with Named Placeholders
+
+While the expression builder automatically handles parameter binding, you can also use named placeholders (like `:status`, `:name`, etc.) in raw SQL and manually bind values using the `bind()` method. This is useful when working with raw SQL or complex expressions.
+
+```php
+// Using named placeholders with raw SQL
+$query = $dml->select('*')
+    ->from('users')
+    ->where($dml->expr()->raw('status = :status'))
+    ->bind(['status' => 'active']);
+
+$results = $query->execute();
+```
+
+**Named Placeholder Syntax:**
+- Named placeholders must start with a colon `:` followed by an alphanumeric identifier
+- Examples: `:status`, `:user_id`, `:email`, `:maxPrice`
+- Placeholder names are case-sensitive
+
+**Multiple Parameters:**
+
+```php
+// Bind multiple parameters
+$query = $dml->select('*')
+    ->from('products')
+    ->where($dml->expr()->raw('price >= :min_price AND price <= :max_price'))
+    ->where($dml->expr()->raw('category = :category'))
+    ->bind([
+        'min_price' => 10.00,
+        'max_price' => 100.00,
+        'category' => 'electronics'
+    ]);
+
+$results = $query->execute();
+```
+
+**Managing Bindings:**
+
+```php
+// Set individual binding
+$query->setBinding('status', 'active');
+
+// Get a specific binding
+$status = $query->getBinding('status');
+
+// Check if a binding exists
+if ($query->hasBinding('status')) {
+    // ...
+}
+
+// Remove a binding
+$query->removeBinding('status');
+
+// Get all bindings
+$allBindings = $query->getBindings();
+
+// Clear all bindings
+$query->clearBindings();
+```
+
+**Why Use Manual Binding?**
+
+1. **Complex Raw SQL:** When you need database-specific functions or syntax not supported by the expression builder
+2. **Migration from Other Libraries:** Easy transition from Doctrine DBAL or PDO code that uses named placeholders
+3. **Performance:** For very specific queries where you want full control over the SQL
+4. **Dynamic Query Building:** When programmatically building WHERE clauses with varying conditions
+
+**Example: Dynamic Search with Named Placeholders:**
+
+```php
+public function searchProducts(array $filters): array
+{
+    $query = $dml->select('*')->from('products');
+    $bindings = [];
+    $conditions = [];
+    
+    // Build conditions dynamically
+    if (isset($filters['min_price'])) {
+        $conditions[] = 'price >= :min_price';
+        $bindings['min_price'] = $filters['min_price'];
+    }
+    
+    if (isset($filters['max_price'])) {
+        $conditions[] = 'price <= :max_price';
+        $bindings['max_price'] = $filters['max_price'];
+    }
+    
+    if (isset($filters['category'])) {
+        $conditions[] = 'category = :category';
+        $bindings['category'] = $filters['category'];
+    }
+    
+    if (isset($filters['search'])) {
+        $conditions[] = 'name LIKE :search';
+        $bindings['search'] = '%' . $filters['search'] . '%';
+    }
+    
+    // Combine all conditions
+    if (!empty($conditions)) {
+        $whereClause = implode(' AND ', $conditions);
+        $query->where($dml->expr()->raw($whereClause))
+              ->bind($bindings);
+    }
+    
+    return $query->execute();
+}
+```
+
+**⚠️ Important Notes:**
+
+- **SQL Injection Prevention:** Always use parameter binding - never concatenate user input directly into SQL strings
+- **Prefer Expression Builder:** For standard queries, use the expression builder methods (`condition()`, `in()`, `like()`) as they provide better type safety and abstraction
+- **Named vs Positional:** Concept DBAL supports named placeholders (`:name`) for better readability and flexibility. Positional placeholders (`?`) are handled by the underlying database driver
 
 ### Resetting Query Parts
 
